@@ -1,40 +1,107 @@
 <?php
 /**
- * Database Configuration for Firebase REST API
+ * Database Configuration for Firebase Firestore REST API
  */
 
 class FirebaseDatabase {
-    private $databaseURL;
+    private $projectId;
+    private $firestoreURL;
     
     public function __construct() {
-        $this->databaseURL = FIREBASE_DATABASE_URL;
+        $this->projectId = "sendly-2702c";
+        $this->firestoreURL = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents";
     }
     
     /**
-     * Send data to Firebase
+     * Convert PHP data to Firestore format
      */
-    public function push($path, $data) {
-        $url = $this->databaseURL . '/' . $path . '.json';
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
-        $response = curl_exec($ch);
-        curl_close($ch);
-        
-        return json_decode($response, true);
+    private function toFirestoreValue($value) {
+        if (is_null($value)) {
+            return ['nullValue' => null];
+        } elseif (is_bool($value)) {
+            return ['booleanValue' => $value];
+        } elseif (is_int($value)) {
+            return ['integerValue' => (string)$value];
+        } elseif (is_float($value)) {
+            return ['doubleValue' => $value];
+        } elseif (is_string($value)) {
+            return ['stringValue' => $value];
+        } elseif (is_array($value)) {
+            // Check if associative array (map) or indexed array
+            if (array_keys($value) !== range(0, count($value) - 1)) {
+                $fields = [];
+                foreach ($value as $k => $v) {
+                    $fields[$k] = $this->toFirestoreValue($v);
+                }
+                return ['mapValue' => ['fields' => $fields]];
+            } else {
+                $values = [];
+                foreach ($value as $v) {
+                    $values[] = $this->toFirestoreValue($v);
+                }
+                return ['arrayValue' => ['values' => $values]];
+            }
+        }
+        return ['stringValue' => (string)$value];
     }
     
     /**
-     * Get data from Firebase
+     * Convert Firestore format to PHP data
+     */
+    private function fromFirestoreValue($value) {
+        if (isset($value['nullValue'])) {
+            return null;
+        } elseif (isset($value['booleanValue'])) {
+            return $value['booleanValue'];
+        } elseif (isset($value['integerValue'])) {
+            return (int)$value['integerValue'];
+        } elseif (isset($value['doubleValue'])) {
+            return (float)$value['doubleValue'];
+        } elseif (isset($value['stringValue'])) {
+            return $value['stringValue'];
+        } elseif (isset($value['timestampValue'])) {
+            return $value['timestampValue'];
+        } elseif (isset($value['mapValue'])) {
+            $result = [];
+            if (isset($value['mapValue']['fields'])) {
+                foreach ($value['mapValue']['fields'] as $k => $v) {
+                    $result[$k] = $this->fromFirestoreValue($v);
+                }
+            }
+            return $result;
+        } elseif (isset($value['arrayValue'])) {
+            $result = [];
+            if (isset($value['arrayValue']['values'])) {
+                foreach ($value['arrayValue']['values'] as $v) {
+                    $result[] = $this->fromFirestoreValue($v);
+                }
+            }
+            return $result;
+        }
+        return null;
+    }
+    
+    /**
+     * Convert Firestore document to PHP array
+     */
+    private function fromFirestoreDocument($doc) {
+        if (!$doc || !isset($doc['fields'])) {
+            return null;
+        }
+        
+        $result = [];
+        foreach ($doc['fields'] as $key => $value) {
+            $result[$key] = $this->fromFirestoreValue($value);
+        }
+        return $result;
+    }
+    
+    /**
+     * Get data from Firestore
+     * Path format: "collection/docId" or "collection/docId/subcollection/subDocId"
      */
     public function get($path) {
-        $url = $this->databaseURL . '/' . $path . '.json';
+        $url = $this->firestoreURL . '/' . $path;
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -42,36 +109,132 @@ class FirebaseDatabase {
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
-        return json_decode($response, true);
+        if ($httpCode !== 200) {
+            return null;
+        }
+        
+        $data = json_decode($response, true);
+        
+        // Check if it's a collection (has 'documents' key)
+        if (isset($data['documents'])) {
+            $result = [];
+            foreach ($data['documents'] as $doc) {
+                // Extract document ID from name
+                $nameParts = explode('/', $doc['name']);
+                $docId = end($nameParts);
+                $result[$docId] = $this->fromFirestoreDocument($doc);
+            }
+            return $result;
+        }
+        
+        // Single document
+        return $this->fromFirestoreDocument($data);
     }
     
     /**
-     * Update data in Firebase
+     * Create/Set document in Firestore (full replace)
      */
-    public function update($path, $data) {
-        $url = $this->databaseURL . '/' . $path . '.json';
+    public function set($path, $data) {
+        $url = $this->firestoreURL . '/' . $path;
+        
+        $fields = [];
+        foreach ($data as $key => $value) {
+            $fields[$key] = $this->toFirestoreValue($value);
+        }
+        
+        $body = json_encode(['fields' => $fields]);
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
-        return json_decode($response, true);
+        return $httpCode === 200;
     }
     
     /**
-     * Delete data from Firebase
+     * Update document in Firestore (partial update)
+     */
+    public function update($path, $data) {
+        // Build update mask
+        $updateMask = implode('&', array_map(function($key) {
+            return 'updateMask.fieldPaths=' . urlencode($key);
+        }, array_keys($data)));
+        
+        $url = $this->firestoreURL . '/' . $path . '?' . $updateMask;
+        
+        $fields = [];
+        foreach ($data as $key => $value) {
+            $fields[$key] = $this->toFirestoreValue($value);
+        }
+        
+        $body = json_encode(['fields' => $fields]);
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return $httpCode === 200;
+    }
+    
+    /**
+     * Push data (create new document with auto-generated ID)
+     */
+    public function push($collectionPath, $data) {
+        $url = $this->firestoreURL . '/' . $collectionPath;
+        
+        $fields = [];
+        foreach ($data as $key => $value) {
+            $fields[$key] = $this->toFirestoreValue($value);
+        }
+        
+        $body = json_encode(['fields' => $fields]);
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode === 200) {
+            $result = json_decode($response, true);
+            // Extract document ID from name
+            $nameParts = explode('/', $result['name']);
+            return ['name' => end($nameParts)];
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Delete document
      */
     public function delete($path) {
-        $url = $this->databaseURL . '/' . $path . '.json';
+        $url = $this->firestoreURL . '/' . $path;
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -80,8 +243,9 @@ class FirebaseDatabase {
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
-        return json_decode($response, true);
+        return $httpCode === 200;
     }
 }

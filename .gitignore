@@ -1,0 +1,30 @@
+# Firebase Service Account (contains private keys)
+config/firebase-service-account.json
+*.json.bak
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+vendor/
+node_modules/
+
+# Uploads (optional - uncomment if needed)
+# uploads/*
+# !uploads/.gitkeep

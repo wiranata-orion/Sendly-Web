@@ -8,6 +8,10 @@ class ContactController {
     private $contactModel;
     
     public function __construct() {
+        // Ensure session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->contactModel = new ContactModel();
     }
     

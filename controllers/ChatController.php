@@ -5,51 +5,43 @@
  */
 
 class ChatController {
-    private $messageModel;
-    private $contactModel;
-    private $groupModel;
-    private $userModel;
     
     public function __construct() {
-        $this->messageModel = new MessageModel();
-        $this->contactModel = new ContactModel();
-        $this->groupModel = new GroupModel();
-        $this->userModel = new UserModel();
+        // Session check
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
     }
     
     /**
      * Main chat view
      */
     public function index() {
-        $user = UserModel::getCurrentUser();
-        
-        // Ensure user has a code
-        $userData = $this->userModel->getUser($user['id']);
-        if (!$userData || !isset($userData['user_code'])) {
-            // Create/update user with code
-            $this->userModel->createUser($user['id'], [
-                'name' => $user['name']
-            ]);
-            $userData = $this->userModel->getUser($user['id']);
+        // Check if user is logged in
+        if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . '/login');
+            exit;
         }
         
-        $user['user_code'] = $userData['user_code'] ?? 'N/A';
+        // Debug session
+        error_log('ChatController - Session user_id: ' . $_SESSION['user_id']);
         
-        // Get user's contacts and groups
-        $contacts = $this->contactModel->getContacts($user['id']);
-        $groups = $this->groupModel->getGroups($user['id']);
+        $user = [
+            'id' => $_SESSION['user_id'],
+            'name' => $_SESSION['user_name'] ?? 'User',
+            'email' => $_SESSION['user_email'] ?? '',
+            'user_code' => $_SESSION['user_id'] // UID = user code
+        ];
         
-        // Ensure they are arrays
-        if (!is_array($contacts)) {
-            $contacts = [];
-        }
-        if (!is_array($groups)) {
-            $groups = [];
-        }
+        // Contacts and groups will be loaded via JavaScript from Firestore
+        $contacts = [];
+        $groups = [];
         
         // Load main chat view
         require_once __DIR__ . '/../views/chat/index.php';
     }
+    
+    // User code is now the Firebase UID, no generation needed
     
     /**
      * Get messages for a conversation (API endpoint)

@@ -14,13 +14,13 @@
             <!-- Sidebar Header -->
             <div class="sidebar-header">
                 <div class="user-info">
-                    <div class="avatar">
+                    <div class="avatar" id="userAvatar">
                         <i class="fas fa-user"></i>
                     </div>
                     <div>
                         <span class="user-name"><?= htmlspecialchars($user['name']) ?></span>
                         <div class="user-code-display">
-                            <span class="user-code" id="userCode"><?= $user['user_code'] ?? 'Loading...' ?></span>
+                            <span class="user-code" id="userCode" title="<?= htmlspecialchars($user['user_code'] ?? '') ?>"><?= htmlspecialchars($user['user_code'] ?? 'Loading...') ?></span>
                             <button class="icon-btn-small" id="copyUserCode" title="Copy Kode">
                                 <i class="fas fa-copy"></i>
                             </button>
@@ -28,12 +28,20 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="icon-btn" id="searchToggle" title="Cari">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <button class="icon-btn" id="menuBtn" title="Menu">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
+                    <div class="dropdown">
+                        <button class="icon-btn" id="menuBtn" title="Menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <a href="#" class="dropdown-item" id="settingsBtn">
+                                <i class="fas fa-cog"></i> Pengaturan
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="<?= BASE_URL ?>/auth/logout" class="dropdown-item text-danger" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i> Keluar
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -49,6 +57,10 @@
                 </button>
                 <button class="tab-btn" data-tab="groups">
                     <i class="fas fa-users"></i> Grup
+                </button>
+                <button class="tab-btn request-btn" id="requestBtn" data-tab="requests" title="Permintaan Kontak">
+                    <i class="fas fa-envelope"></i>
+                    <span class="request-badge hidden" id="requestBadge">0</span>
                 </button>
             </div>
 
@@ -78,6 +90,14 @@
                         <p>Belum ada kontak</p>
                     </div>
                 <?php endif; ?>
+            </div>
+
+            <!-- Request List (Hidden by default) -->
+            <div class="chat-list hidden" id="requestList">
+                <div class="empty-list">
+                    <i class="fas fa-envelope-open"></i>
+                    <p>Tidak ada permintaan kontak</p>
+                </div>
             </div>
 
             <!-- Group List -->
@@ -115,13 +135,13 @@
                     <span>Tambah Kontak</span>
                 </button>
                 <div class="group-actions hidden" id="groupActions">
-                    <button class="add-btn half-btn" id="addGroupBtn" title="Buat Grup">
+                    <button class="add-btn" id="addGroupBtn" title="Buat Grup">
                         <i class="fas fa-plus-circle"></i>
                         <span>Buat Grup</span>
                     </button>
-                    <button class="add-btn half-btn" id="joinGroupBtn" title="Gabung Grup">
+                    <button class="add-btn" id="joinGroupBtn" title="Gabung Grup">
                         <i class="fas fa-sign-in-alt"></i>
-                        <span>Gabung Grup</span>
+                        <span>Gabung</span>
                     </button>
                 </div>
             </div>
@@ -139,11 +159,6 @@
                         <h3 id="chatName">Sendly</h3>
                         <span id="chatStatus">Pilih kontak atau grup untuk memulai</span>
                     </div>
-                </div>
-                <div class="chat-header-actions">
-                    <button class="icon-btn" id="infoBtn" title="Info">
-                        <i class="fas fa-info-circle"></i>
-                    </button>
                 </div>
             </div>
 
@@ -198,22 +213,22 @@
     <div class="modal hidden" id="addContactModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Tambah Kontak Baru</h3>
+                <h3>Kirim Permintaan Kontak</h3>
                 <button class="icon-btn close-modal" data-modal="addContactModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <form id="addContactForm">
                 <div class="form-group">
-                    <label for="contactCode">Kode Pengguna</label>
-                    <input type="text" id="contactCode" name="user_code" required placeholder="Masukkan kode unik pengguna" maxlength="8" style="text-transform: uppercase;">
+                    <label for="contactCode">Kode Pengguna (UID)</label>
+                    <input type="text" id="contactCode" name="user_code" required placeholder="Paste kode UID pengguna" style="width: 100%; font-family: monospace; font-size: 12px;">
                     <small style="color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;">
-                        <i class="fas fa-info-circle"></i> Minta kode unik dari pengguna yang ingin ditambahkan
+                        <i class="fas fa-info-circle"></i> Minta pengguna untuk copy kode UID-nya, lalu paste di sini. Permintaan akan dikirim dan menunggu persetujuan.
                     </small>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary close-modal" data-modal="addContactModal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Tambah Kontak</button>
+                    <button type="submit" class="btn btn-primary">Kirim Permintaan</button>
                 </div>
             </form>
         </div>
@@ -261,7 +276,7 @@
             <form id="joinGroupForm">
                 <div class="form-group">
                     <label for="groupCode">Kode Grup</label>
-                    <input type="text" id="groupCode" name="group_code" required placeholder="Masukkan kode grup" maxlength="8" style="text-transform: uppercase;">
+                    <input type="text" id="groupCode" name="group_code" required placeholder="Masukkan kode grup" style="text-transform: uppercase; width: 100%; font-family: monospace; letter-spacing: 1px;">
                     <small style="color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;">
                         <i class="fas fa-info-circle"></i> Minta kode grup dari admin grup
                     </small>
@@ -274,6 +289,9 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <?php include __DIR__ . '/../settings/index.php'; ?>
+
     <!-- Emoji Picker -->
     <div class="emoji-picker hidden" id="emojiPicker">
         <div class="emoji-grid">
@@ -283,6 +301,8 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
@@ -291,11 +311,19 @@
 
     <!-- Application Configuration -->
     <script>
-        // Current user info
+        // Current user info - Debug: Check if user data is properly set
         const currentUser = {
-            id: "<?= $user['id'] ?>",
-            name: "<?= htmlspecialchars($user['name']) ?>"
+            id: "<?= isset($user['id']) && !empty($user['id']) ? $user['id'] : '' ?>",
+            name: "<?= isset($user['name']) ? htmlspecialchars($user['name']) : 'User' ?>"
         };
+        
+        // Debug log
+        console.log('🔑 PHP User ID:', currentUser.id || 'EMPTY');
+        console.log('👤 PHP User Name:', currentUser.name);
+        
+        if (!currentUser.id) {
+            console.error('❌ User ID is empty! Session may not be set correctly.');
+        }
         
         // Base URL
         const BASE_URL = "<?= BASE_URL ?>";

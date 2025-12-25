@@ -1,7 +1,7 @@
 <?php
 /**
  * User Model
- * Handles user-related operations with Firebase
+ * Handles user-related operations with Firebase Firestore
  */
 
 class UserModel {
@@ -12,48 +12,35 @@ class UserModel {
     }
     
     /**
-     * Generate unique user code
-     */
-    private function generateUserCode() {
-        return strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
-    }
-    
-    /**
      * Create or update user
+     * User code = Firebase UID (permanent & unique)
      */
     public function createUser($userId, $userData) {
-        // Check if user already exists
-        $existingUser = $this->db->get("users/{$userId}");
-        
         $user = [
+            'uid' => $userId,
             'name' => $userData['name'],
             'email' => $userData['email'] ?? null,
             'phone' => $userData['phone'] ?? null,
-            'avatar' => $userData['avatar'] ?? null,
+            'photoURL' => $userData['avatar'] ?? null,
             'status' => 'online',
-            'last_seen' => time() * 1000,
-            'created_at' => $existingUser['created_at'] ?? time() * 1000,
-            'user_code' => $existingUser['user_code'] ?? $this->generateUserCode()
+            'about' => 'Hey there! I am using Sendly'
         ];
         
         return $this->db->update("users/{$userId}", $user);
     }
     
     /**
-     * Get user by unique code
+     * Get user by unique code (Firebase UID)
      */
     public function getUserByCode($userCode) {
-        $users = $this->db->get("users");
+        // User code IS the Firebase UID, so fetch directly from Firestore
+        $userData = $this->db->get("users/{$userCode}");
         
-        if (!$users || !is_array($users)) {
-            return null;
-        }
-        
-        foreach ($users as $userId => $userData) {
-            if (isset($userData['user_code']) && $userData['user_code'] === strtoupper($userCode)) {
-                $userData['id'] = $userId;
-                return $userData;
-            }
+        // Check if user exists and has valid data
+        if ($userData && is_array($userData) && isset($userData['name'])) {
+            $userData['id'] = $userCode;
+            $userData['user_code'] = $userCode;
+            return $userData;
         }
         
         return null;
@@ -71,8 +58,7 @@ class UserModel {
      */
     public function updateStatus($userId, $status) {
         return $this->db->update("users/{$userId}", [
-            'status' => $status,
-            'last_seen' => time() * 1000
+            'status' => $status
         ]);
     }
     
@@ -84,13 +70,11 @@ class UserModel {
     }
     
     /**
-     * Get or create session user (for demo purposes)
+     * Get or create session user
      */
     public static function getCurrentUser() {
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_name'])) {
-            // Create a demo user
-            $_SESSION['user_id'] = 'user_' . substr(md5(session_id()), 0, 8);
-            $_SESSION['user_name'] = 'User ' . substr($_SESSION['user_id'], -4);
+            return null;
         }
         
         return [

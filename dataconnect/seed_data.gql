@@ -1,0 +1,51 @@
+mutation CreateDemoData @transaction @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      username: "demouser1",
+      passwordHash: "somehash1",
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      username: "demouser2",
+      passwordHash: "somehash2",
+      createdAt: "2024-01-01T00:00:00Z"
+    }
+  ])
+  contact_insertMany(data: [
+    {
+      requesterId: "550e8400-e29b-41d4-a716-446655440000",
+      addresseeId: "550e8400-e29b-41d4-a716-446655440001",
+      status: "pending",
+      createdAt: "2024-01-02T00:00:00Z"
+    }
+  ])
+  conversation_insertMany(data: [
+    {
+      id: "650e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-01-03T00:00:00Z",
+    }
+  ])
+  conversationParticipant_insertMany(data: [
+    {
+      conversationId: "650e8400-e29b-41d4-a716-446655440000",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      joinedAt: "2024-01-04T00:00:00Z"
+    },
+        {
+      conversationId: "650e8400-e29b-41d4-a716-446655440000",
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      joinedAt: "2024-01-04T00:00:00Z"
+    }
+  ])
+  message_insertMany(data: [
+    {
+      id: "750e8400-e29b-41d4-a716-446655440000",
+      recipientId: "550e8400-e29b-41d4-a716-446655440001",
+      senderId: "550e8400-e29b-41d4-a716-446655440000",
+      content: "Hello demouser2!",
+      sentAt: "2024-01-05T00:00:00Z"
+    }
+  ])
+}

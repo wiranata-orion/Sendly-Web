@@ -1,0 +1,34 @@
+mutation AddContact($requesterId: UUID!, $addresseeId: UUID!, $status: String!) @auth(level: USER) {
+  contact_insert(data: {
+    requesterId: $requesterId,
+    addresseeId: $addresseeId,
+    status: $status
+  })
+}
+
+query GetUserById($id: UUID!) @auth(level: USER) {
+  user(id: $id) {
+    id
+    username
+    createdAt
+    lastActiveAt
+  }
+}
+
+mutation CreateMessage($recipientId: UUID!, $senderId: UUID!, $content: String!, $sentAt: Timestamp!) @auth(level: USER) {
+  message_insert(data: {
+    recipientId: $recipientId,
+    senderId: $senderId,
+    content: $content,
+    sentAt: $sentAt
+  })
+}
+
+query ListConversations @auth(level: USER) {
+  conversations {
+    id
+    name
+    createdAt
+    lastMessageAt
+  }
+}

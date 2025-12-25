@@ -1,0 +1,39 @@
+type User @table {
+  username: String!
+  passwordHash: String!
+  createdAt: Timestamp!
+  publicKey: String
+  lastActiveAt: Timestamp
+}
+
+type Contact @table(key: ["requester", "addressee"]) {
+  requester: User!
+  addressee: User!
+  status: String!
+  createdAt: Timestamp
+}
+
+type Message @table {
+  sender: User!
+  recipient: User!
+  content: String!
+  sentAt: Timestamp!
+  expirationTime: Timestamp
+  viewLimit: Int
+  viewCount: Int
+  isRead: Boolean
+  readAt: Timestamp
+}
+
+type Conversation @table {
+  createdAt: Timestamp!
+  name: String
+  lastMessageAt: Timestamp
+}
+
+type ConversationParticipant @table(key: ["conversation", "user"]) {
+  conversation: Conversation!
+  user: User!
+  joinedAt: Timestamp!
+  lastReadMessageId: UUID
+}

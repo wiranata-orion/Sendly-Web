@@ -1,7 +1,7 @@
 <?php
 /**
  * Contact Model
- * Handles all contact-related operations with Firebase
+ * Handles all contact-related operations with Firebase Firestore
  */
 
 class ContactModel {
@@ -12,24 +12,10 @@ class ContactModel {
     }
     
     /**
-     * Add a new contact
-     */
-    public function addContact($userId, $contactData) {
-        $contact = [
-            'name' => $contactData['name'],
-            'phone' => $contactData['phone'],
-            'email' => $contactData['email'] ?? null,
-            'avatar' => $contactData['avatar'] ?? null,
-            'created_at' => time() * 1000
-        ];
-        
-        return $this->db->push("users/{$userId}/contacts", $contact);
-    }
-    
-    /**
-     * Get all contacts for a user
+     * Get all contacts for a user from Firestore subcollection
      */
     public function getContacts($userId) {
+        // Firestore path: users/{userId}/contacts
         $contacts = $this->db->get("users/{$userId}/contacts");
         
         if ($contacts && is_array($contacts)) {
@@ -95,7 +81,7 @@ class ContactModel {
     public function addContactByCode($userId, $userCode) {
         $userModel = new UserModel();
         
-        // Get user by code
+        // Get user by code (user code = Firebase UID)
         $targetUser = $userModel->getUserByCode($userCode);
         
         if (!$targetUser) {
@@ -109,7 +95,7 @@ class ContactModel {
         // Check if contact already exists
         $existingContacts = $this->getContacts($userId);
         foreach ($existingContacts as $contact) {
-            if ($contact['user_id'] === $targetUser['id']) {
+            if (isset($contact['user_id']) && $contact['user_id'] === $targetUser['id']) {
                 return ['success' => false, 'message' => 'Kontak sudah ada'];
             }
         }
@@ -117,17 +103,17 @@ class ContactModel {
         // Add contact
         $contactData = [
             'user_id' => $targetUser['id'],
-            'name' => $targetUser['name'],
+            'name' => $targetUser['name'] ?? 'Unknown',
             'phone' => $targetUser['phone'] ?? '',
             'email' => $targetUser['email'] ?? null,
             'avatar' => $targetUser['avatar'] ?? null,
-            'user_code' => $targetUser['user_code'],
+            'user_code' => $targetUser['user_code'] ?? $userCode,
             'created_at' => time() * 1000
         ];
         
         $result = $this->db->push("users/{$userId}/contacts", $contactData);
         
-        if ($result && isset($result['name'])) {
+        if ($result && is_array($result) && isset($result['name'])) {
             $contactData['id'] = $result['name'];
             return [
                 'success' => true,

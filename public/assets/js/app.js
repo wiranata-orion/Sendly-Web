@@ -674,6 +674,7 @@ function handleChatSelect(e) {
         // Fallback: just open chat without marking as read
         openChat(currentChatId, currentChatType, currentChatName);
         loadMessages(currentChatId, currentChatType);
+        setTimeout(() => scrollToBottom(true), 0);
     }
 }
 
@@ -815,6 +816,8 @@ function loadMessages(chatId, chatType) {
                 messages.forEach(message => {
                     displayMessage(message);
                 });
+                
+
             } else {
                 // Subsequent updates: re-render all messages to maintain order
                 snapshot.docChanges().forEach((change) => {
@@ -1249,6 +1252,11 @@ function displayMessage(message) {
     
     messageEl.innerHTML = messageContent;
     elements.messagesList.appendChild(messageEl);
+    // If the message contains an image, ensure we scroll after it loads
+    const img = messageEl.querySelector('.message-image');
+    if (img) {
+        img.addEventListener('load', () => scrollToBottom(true));
+    }
 }
 
 // ==========================================
@@ -1966,9 +1974,21 @@ function generateGroupCode() {
 // ==========================================
 // Utility Functions
 // ==========================================
-function scrollToBottom() {
+function scrollToBottom(force = false) {
     if (elements.messagesContainer) {
-        elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+        const container = elements.messagesContainer;
+        // With flex-direction: column-reverse, scrollTop 0 is the bottom
+        if (force) {
+            container.style.scrollBehavior = 'auto';
+            container.scrollTop = 0;
+            container.style.scrollBehavior = 'smooth';
+            return;
+        }
+        // Check if near bottom (which is scrollTop near 0 with column-reverse)
+        const threshold = 100;
+        if (container.scrollTop <= threshold) {
+            container.scrollTop = 0;
+        }
     }
 }
 
@@ -2099,6 +2119,12 @@ function displayMessageInOrder(message) {
         elements.messagesList.insertBefore(messageEl, insertBefore);
     } else {
         elements.messagesList.appendChild(messageEl);
+    }
+
+    // If the message contains an image, ensure we scroll after it loads
+    const img = messageEl.querySelector('.message-image');
+    if (img) {
+        img.addEventListener('load', () => scrollToBottom(true));
     }
 }
 

@@ -1,44 +1,195 @@
-# Sendly - Modern Chat Application
+# Sendly - Chat Application
 
-![Sendly Chat](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Firebase](https://img.shields.io/badge/Firebase-Realtime-orange.svg)
-![PHP](https://img.shields.io/badge/PHP-8.0+-purple.svg)
+Aplikasi chat modern dengan fitur real-time messaging, chat personal dan grup, serta sistem kode unik.
 
-Aplikasi chat modern dengan desain glassmorphism yang elegan. Mendukung chat personal dan grup dengan sistem kode unik untuk menambahkan kontak dan bergabung ke grup.
+## 📸 Screenshots
+
+### Halaman Login
+![Login Page](screenshots/login.png)
+
+### Halaman Register
+![Register Page](screenshots/register.png)
+
+### Interface Chat Utama
+![Main Chat](screenshots/main-chat.png)
+
+### Chat Personal
+![Personal Chat](screenshots/personal-chat.png)
+
+### Chat Grup
+![Group Chat](screenshots/group-chat.png)
+
+### Manajemen Akun
+![Akun Management](screenshots/akun-management.png)
+
+### Manajemen Grup
+![Group Management](screenshots/group-management.png)
 
 ## ✨ Fitur Utama
 
-### 🔐 Sistem Kode Unik
-- **User Code**: Setiap pengguna memiliki kode unik 8 karakter
-- **Group Code**: Setiap grup memiliki kode unik untuk join
-- **Copy Code**: Fitur copy kode dengan satu klik
-
-### 💬 Chat Features
-- ✅ Real-time messaging menggunakan Firebase
-- ✅ Chat personal (1-on-1)
-- ✅ Chat grup dengan multiple members
-- ✅ Upload dan kirim file
-- ✅ Emoji picker
-- ✅ Typing indicator
-- ✅ Message status (sent, delivered, read)
-- ✅ Date dividers
-- ✅ Auto-resize textarea
+### 💬 Chat Real-Time
+- Instant messaging dengan Firebase
+- Chat personal (1-on-1)
+- Chat grup dengan multiple members
+- Message status (sent, delivered, read)
+- Typing indicator
 
 ### 👥 Manajemen Kontak & Grup
-- ✅ Tambah kontak via kode unik
-- ✅ Buat grup baru
-- ✅ Join grup via kode unik
-- ✅ Pencarian kontak dan grup
-- ✅ List kontak dan grup terpisah
+- Tambah kontak via kode unik
+- Buat grup baru
+- Join grup via kode unik
+- List kontak dan grup terpisah
+- Pencarian kontak dan grup
+
+### 📎 File Sharing
+- Upload gambar dan file
+- Preview gambar sebelum kirim
+- Download file yang diterima
+- Batas ukuran 10MB
 
 ### 🎨 UI/UX Modern
-- ✅ Dark theme dengan glassmorphism
-- ✅ Gradient colors (Purple-Blue theme)
-- ✅ Smooth animations
-- ✅ Glow effects
-- ✅ Responsive design
-- ✅ Custom scrollbar
-- ✅ Toast notifications
+- Dark theme dengan glassmorphism
+- Gradient colors (Purple-Blue)
+- Responsive design
+- Smooth animations
+- Toast notifications
+
+## 🚀 Quick Start
+
+### Prasyarat
+- PHP 8.0+
+- XAMPP/LAMP
+- Firebase Account
+
+### Setup Firebase
+1. Buat project di [Firebase Console](https://console.firebase.google.com/)
+2. Enable Realtime Database
+3. Enable Storage
+4. Copy config ke `public/firebase-config.js`
+
+### Setup Aplikasi
+1. Clone repository
+2. Update Firebase config
+3. Start Apache di XAMPP
+4. Akses `http://localhost/Website-Platform/public`
+
+## 🛠️ Tech Stack
+
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Backend**: PHP 8.0+
+- **Database**: Firebase Realtime Database
+- **Storage**: Firebase Storage
+- **UI**: Glassmorphism design
+
+## 📝 Cara Menggunakan
+
+1. **Dapatkan Kode User**: Setiap user dapat kode unik otomatis
+2. **Tambah Kontak**: Gunakan kode unik untuk tambah kontak
+3. **Buat Grup**: Buat grup dan bagikan kode untuk join
+4. **Kirim Pesan**: Chat real-time dengan emoji dan file
+5. **Upload File**: Kirim gambar/dokumen dengan preview
+
+## 📄 License
+
+MIT License
+
+
+## 📸 Cara Menambahkan Screenshots
+
+Untuk menambahkan screenshots aplikasi ke README:
+
+1. **Ambil Screenshot** dari berbagai halaman aplikasi:
+   - Halaman login (`login.png`)
+   - Halaman register (`register.png`)
+   - Interface chat utama (`main-chat.png`)
+   - Chat personal (`personal-chat.png`)
+   - Chat grup (`group-chat.png`)
+   - Manajemen kontak (`contact-management.png`)
+   - Manajemen grup (`group-management.png`)
+   - Upload file (`file-upload.png`)
+   - Tampilan mobile (`mobile-view.png`)
+
+2. **Simpan ke Folder** `screenshots/`:
+   ```
+   Website-Platform/
+   └── screenshots/
+       ├── login.png
+       ├── register.png
+       ├── main-chat.png
+       └── ...
+   ```
+
+**Tips Screenshot**:
+- Gunakan browser Chrome/Firefox dengan Developer Tools
+- Capture full page untuk tampilan lengkap
+- Pastikan UI dalam kondisi ideal (tidak ada loading state)
+- Gunakan extension seperti "Full Page Screen Capture" untuk Chrome
+
+## ✨ Fitur-Fitur Inti
+
+### 🔐 Sistem Kode Unik
+- **User Code**: Setiap pengguna memiliki kode unik 8 karakter untuk identifikasi
+- **Group Code**: Setiap grup memiliki kode unik untuk bergabung
+- **Copy Code**: Fitur copy kode dengan satu klik dan feedback visual
+- **Validation**: Validasi kode secara real-time sebelum submit
+
+### 💬 Chat Real-Time
+- **Instant Messaging**: Pesan dikirim dan diterima secara real-time menggunakan Firebase
+- **Message Status**: Status pesan (sent, delivered, read) dengan indikator visual
+- **Typing Indicator**: Menampilkan "sedang mengetik..." saat user lain mengetik
+- **Message Ordering**: Pesan selalu ditampilkan dalam urutan waktu yang benar
+- **Auto-scroll**: Otomatis scroll ke pesan terbaru saat menerima pesan baru
+
+### 👥 Manajemen Kontak & Grup
+- **Tambah Kontak**: Tambah kontak baru menggunakan kode unik user
+- **Buat Grup**: Buat grup baru dengan nama dan deskripsi
+- **Join Grup**: Bergabung ke grup menggunakan kode unik grup
+- **Contact List**: List kontak terpisah dari grup dengan pencarian
+- **Group List**: List grup dengan informasi member dan deskripsi
+- **Auto-sort**: Kontak/grup otomatis naik ke atas saat ada pesan baru
+
+### 📎 Upload & File Sharing
+- **File Upload**: Upload gambar, dokumen, dan file lainnya
+- **Image Preview**: Preview gambar sebelum dikirim
+- **File Type Detection**: Deteksi otomatis tipe file dengan icon yang sesuai
+- **File Size Limit**: Batas ukuran file 10MB untuk performa optimal
+- **Download Support**: File dapat didownload dengan klik
+
+### 🎨 UI/UX Modern
+- **Glassmorphism Design**: Efek kaca dengan blur dan transparansi
+- **Dark Theme**: Tema gelap yang nyaman untuk mata
+- **Gradient Colors**: Kombinasi warna ungu-biru yang elegan
+- **Smooth Animations**: Animasi halus untuk transisi dan interaksi
+- **Responsive Layout**: Tampil optimal di desktop, tablet, dan mobile
+- **Custom Scrollbar**: Scrollbar custom yang sesuai dengan tema
+- **Toast Notifications**: Notifikasi toast untuk feedback user
+
+### 🔍 Pencarian & Navigasi
+- **Search Contacts**: Pencarian real-time di list kontak
+- **Search Groups**: Pencarian real-time di list grup
+- **Tab Navigation**: Tab terpisah untuk Kontak dan Grup
+- **Active Chat Highlight**: Highlight chat yang sedang aktif
+- **Unread Badge**: Badge notifikasi untuk pesan belum dibaca
+
+### 📱 Responsive & Mobile-Friendly
+- **Mobile Optimized**: Layout yang dioptimalkan untuk mobile
+- **Touch Gestures**: Gestur sentuh yang responsif
+- **Adaptive UI**: UI yang menyesuaikan dengan ukuran layar
+- **Fast Loading**: Optimasi untuk loading cepat di mobile
+
+### 🔒 Keamanan & Privacy
+- **Firebase Authentication**: Sistem autentikasi yang aman
+- **User Session**: Manajemen session yang proper
+- **Data Validation**: Validasi input di client dan server side
+- **Secure File Upload**: Upload file dengan validasi keamanan
+
+## 🚀 Setup dan Instalasi
+
+### Prasyarat
+- PHP 8.0 atau lebih tinggi
+- XAMPP / LAMP / WAMP
+- Firebase Account (gratis)
+- Browser modern (Chrome, Firefox, Edge)
 
 ## 🚀 Setup dan Instalasi
 
@@ -257,82 +408,194 @@ Edit `assets/css/style.css` untuk mengubah warna theme:
 }
 ```
 
-## 🐛 Troubleshooting
+## 🎨 Pengalaman Pengguna
 
-### Error: "Firebase is not defined"
-**Solusi**: Pastikan Firebase SDK sudah di-load sebelum `firebase-config.js`
-```html
-<!-- Order penting! -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="/public/firebase-config.js"></script>
-<script src="/assets/js/app.js"></script>
-```
+### Interface yang Intuitif
+- **Sidebar Navigation**: Navigasi mudah dengan tab Kontak dan Grup
+- **Active Chat Highlight**: Chat yang sedang aktif ditandai dengan jelas
+- **Unread Badge**: Notifikasi pesan belum dibaca dengan badge merah
+- **Search Functionality**: Pencarian real-time untuk kontak dan grup
 
-### Error: "Permission denied"
-**Solusi**: Periksa Firebase Realtime Database Rules. Untuk development:
-```json
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}
-```
+### Interaksi yang Smooth
+- **Real-time Updates**: Semua perubahan terlihat secara instan
+- **Smooth Animations**: Transisi yang halus untuk semua interaksi
+- **Toast Notifications**: Feedback visual untuk setiap aksi
+- **Loading States**: Indikator loading untuk operasi asynchronous
 
-### Kontak/Grup tidak muncul
-**Solusi**: 
-1. Buka Developer Tools (F12) > Console
-2. Cek error message
-3. Pastikan Firebase config sudah benar
-4. Periksa network tab untuk melihat API calls
+### Responsive Design
+- **Mobile-First**: Dioptimalkan untuk perangkat mobile
+- **Adaptive Layout**: Menyesuaikan dengan berbagai ukuran layar
+- **Touch-Friendly**: Interface yang mudah digunakan di layar sentuh
+- **Cross-Browser**: Kompatibel dengan semua browser modern
 
-### CSS tidak muncul
-**Solusi**:
-1. Periksa path CSS: `/assets/css/style.css` atau `assets/css/style.css`
-2. Pastikan BASE_URL sudah benar di `config/database.php`
-3. Clear browser cache (Ctrl + Shift + R)
+## 🔧 Fitur Lanjutan
 
-## 📱 Browser Support
+### File Management
+- **Multiple Format Support**: Mendukung gambar, dokumen, dan file lainnya
+- **File Preview**: Preview gambar sebelum dikirim
+- **Download Support**: File dapat didownload dengan mudah
+- **Size Validation**: Validasi ukuran file untuk performa optimal
 
-- ✅ Chrome 90+
-- ✅ Firefox 88+
+### Message Features
+- **Emoji Integration**: Emoji picker untuk ekspresi yang lebih kaya
+- **Message Status**: Tracking status pesan (terkirim, dibaca)
+- **Auto-ordering**: Pesan selalu dalam urutan kronologis yang benar
+- **Message Persistence**: Pesan tersimpan dan dapat diakses kapan saja
+
+### Group Management
+- **Group Creation**: Buat grup dengan nama dan deskripsi
+- **Member Management**: Kelola anggota grup dengan mudah
+- **Group Codes**: Sistem kode unik untuk bergabung grup
+- **Group Settings**: Pengaturan grup untuk admin
+
+### User Experience
+- **Auto-scroll**: Otomatis scroll ke pesan terbaru
+- **Keyboard Shortcuts**: Enter untuk kirim pesan
+- **Copy User Code**: Salin kode user dengan satu klik
+- **Session Management**: Manajemen session yang aman
 - ✅ Edge 90+
 - ✅ Safari 14+
 - ✅ Opera 76+
 
-## 🔒 Security Notes
+## �️ Teknologi yang Digunakan
 
-⚠️ **Aplikasi ini untuk development/demo**. Untuk production:
+### Frontend
+- **HTML5** - Semantic markup dan struktur
+- **CSS3** - Modern styling dengan glassmorphism effects
+- **JavaScript (ES6+)** - Interactive functionality
+- **Firebase SDK** - Real-time database dan storage
 
-1. **Aktifkan Authentication**
-   ```javascript
-   // Tambahkan Firebase Auth
-   firebase.auth().signInWithEmailAndPassword(email, password)
-   ```
+### Backend
+- **PHP 8.0+** - Server-side logic
+- **Firebase Realtime Database** - NoSQL database untuk chat
+- **Firebase Storage** - File upload dan storage
+- **Firebase Authentication** - User authentication
 
-2. **Update Database Rules**
-   - Batasi read/write berdasarkan auth.uid
-   - Validasi data di server-side
+### Libraries & Tools
+- **Font Awesome** - Icons dan visual elements
+- **Google Fonts** - Typography (Poppins)
+- **XAMPP** - Local development server
 
-3. **Enable HTTPS**
-   - Gunakan SSL certificate
-   - Force HTTPS di Apache/Nginx
+## � Changelog
 
-4. **Rate Limiting**
-   - Implementasi rate limit untuk API
-   - Gunakan reCAPTCHA untuk form
+### Version 1.0.0 (Current)
+- ✅ Real-time messaging dengan Firebase
+- ✅ Chat personal dan grup
+- ✅ Sistem kode unik untuk kontak dan grup
+- ✅ Upload file dengan preview
+- ✅ UI glassmorphism modern
+- ✅ Responsive design
+- ✅ Message ordering yang benar
+- ✅ Auto-sort kontak/grup berdasarkan pesan terbaru
+- ✅ Debounced chat list updates
+- ✅ Toast notifications
+- ✅ Emoji picker
+- ✅ Typing indicators
 
-## 🤝 Contributing
+### Upcoming Features
+- 🔄 Push notifications
+- 🔄 Message encryption
+- 🔄 Voice messages
+- 🔄 Video calls
+- 🔄 Message reactions
+- 🔄 Dark/Light theme toggle
+- 🔄 Message search
+- 🔄 Message forwarding
+- 🔄 Admin panel untuk grup
+
+### Users Collection
+```json
+{
+  "userId": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "userCode": "A3F2D8B1",
+    "createdAt": 1640995200000
+  }
+}
+```
+
+### Chats Collection
+```json
+{
+  "chat_user1_user2": {
+    "participants": ["user1", "user2"],
+    "updatedAt": 1640995200000,
+    "messages": {
+      "msgId1": {
+        "senderId": "user1",
+        "text": "Hello!",
+        "timestamp": 1640995200000,
+        "readBy": ["user1", "user2"]
+      }
+    }
+  }
+}
+```
+
+### Groups Collection
+```json
+{
+  "groupId": {
+    "name": "Tech Discussion",
+    "description": "Discussion about technology",
+    "groupCode": "G7H9K2L4",
+    "createdBy": "user1",
+    "members": ["user1", "user2", "user3"],
+    "messages": { /* same as chats */ }
+  }
+}
+```
+
+## � Keamanan & Privasi
+
+### Data Protection
+- **Firebase Security**: Menggunakan Firebase Authentication untuk keamanan
+- **User Sessions**: Manajemen session yang aman dan terenkripsi
+- **Data Validation**: Validasi input di client dan server side
+- **Secure File Upload**: Upload file dengan validasi keamanan
+
+### Privacy Features
+- **User Codes**: Sistem kode unik untuk privasi identitas
+- **Group Access Control**: Kontrol akses grup melalui kode unik
+- **Message Encryption**: Pesan disimpan dengan aman di Firebase
+- **Session Management**: Logout otomatis untuk keamanan
+
+## 🤝 Kontribusi
+
+Kami sangat terbuka untuk kontribusi! Anda dapat:
+- � Mengusulkan fitur baru
+- 🔧 Mengirimkan pull request
+- 📖 Membantu meningkatkan dokumentasi
+- 🎨 Berkontribusi pada desain UI/UX
+
+### Panduan Kontribusi
+- Ikuti standar coding PSR-12 untuk PHP
+- Gunakan ESLint untuk JavaScript
+- Test di berbagai browser modern
+- Pastikan responsive design tetap terjaga
 
 Contributions are welcome! Feel free to:
-- 🐛 Report bugs
 - 💡 Suggest features
 - 🔧 Submit pull requests
+- 📖 Help improve documentation
+
+### Panduan Kontribusi
+- Ikuti PSR-12 untuk PHP code style
+- Gunakan ESLint untuk JavaScript
+- Test di multiple browser (Chrome, Firefox, Edge)
+- Pastikan responsive design tetap terjaga
 
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+## 🙏 Acknowledgments
+
+- **Firebase** - Untuk real-time database dan storage
+- **Font Awesome** - Untuk icon collection
+- **Google Fonts** - Untuk typography
+- **Glassmorphism CSS** - Untuk inspirasi UI design
 
 ## 👨‍💻 Developer
 
@@ -341,5 +604,3 @@ Created with ❤️ by Sendly Team
 ---
 
 **Happy Chatting! 💬✨**
-
-Jika ada pertanyaan atau masalah, silakan buka issue di repository ini.

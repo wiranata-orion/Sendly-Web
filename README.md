@@ -1,29 +1,6 @@
 # Sendly - Chat Application
 
-Aplikasi chat modern dengan fitur real-time messaging, chat personal dan grup, serta sistem kode unik.
-
-## 📸 Screenshots
-
-### Halaman Login
-![Login Page](screenshots/login.png)
-
-### Halaman Register
-![Register Page](screenshots/register.png)
-
-### Interface Chat Utama
-![Main Chat](screenshots/main-chat.png)
-
-### Chat Personal
-![Personal Chat](screenshots/personal-chat.png)
-
-### Chat Grup
-![Group Chat](screenshots/group-chat.png)
-
-### Manajemen Akun
-![Akun Management](screenshots/akun-management.png)
-
-### Manajemen Grup
-![Group Management](screenshots/group-management.png)
+Aplikasi chat modern dengan fitur real-time messaging, chat personal dan grup.
 
 ## ✨ Fitur Utama
 
@@ -92,38 +69,6 @@ Aplikasi chat modern dengan fitur real-time messaging, chat personal dan grup, s
 ## 📄 License
 
 MIT License
-
-
-## 📸 Cara Menambahkan Screenshots
-
-Untuk menambahkan screenshots aplikasi ke README:
-
-1. **Ambil Screenshot** dari berbagai halaman aplikasi:
-   - Halaman login (`login.png`)
-   - Halaman register (`register.png`)
-   - Interface chat utama (`main-chat.png`)
-   - Chat personal (`personal-chat.png`)
-   - Chat grup (`group-chat.png`)
-   - Manajemen kontak (`contact-management.png`)
-   - Manajemen grup (`group-management.png`)
-   - Upload file (`file-upload.png`)
-   - Tampilan mobile (`mobile-view.png`)
-
-2. **Simpan ke Folder** `screenshots/`:
-   ```
-   Website-Platform/
-   └── screenshots/
-       ├── login.png
-       ├── register.png
-       ├── main-chat.png
-       └── ...
-   ```
-
-**Tips Screenshot**:
-- Gunakan browser Chrome/Firefox dengan Developer Tools
-- Capture full page untuk tampilan lengkap
-- Pastikan UI dalam kondisi ideal (tidak ada loading state)
-- Gunakan extension seperti "Full Page Screen Capture" untuk Chrome
 
 ## ✨ Fitur-Fitur Inti
 
@@ -603,4 +548,25 @@ Created with ❤️ by Sendly Team
 
 ---
 
-**Happy Chatting! 💬✨**
+## 📸 Screenshots
+
+### Halaman Login
+![Login Page](screenshots/login.png)
+
+### Halaman Register
+![Register Page](screenshots/register.png)
+
+### Interface Chat Utama
+![Main Chat](screenshots/main-chat.png)
+
+### Chat Personal
+![Personal Chat](screenshots/personal-chat.png)
+
+### Chat Grup
+![Group Chat](screenshots/group-chat.png)
+
+### Manajemen Akun
+![Akun Management](screenshots/akun-management.png)
+
+### Manajemen Grup
+![Group Management](screenshots/group-management.png)

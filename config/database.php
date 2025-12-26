@@ -6,10 +6,77 @@
 class FirebaseDatabase {
     private $projectId;
     private $firestoreURL;
+    private $accessToken;
     
     public function __construct() {
         $this->projectId = "sendly-2702c";
         $this->firestoreURL = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents";
+        $this->accessToken = $this->getAccessToken();
+    }
+    
+    /**
+     * Get access token from service account
+     */
+    private function getAccessToken() {
+        $serviceAccountPath = __DIR__ . '/firebase-service-account.json';
+        
+        if (!file_exists($serviceAccountPath)) {
+            error_log("Service account file not found: " . $serviceAccountPath);
+            return null;
+        }
+        
+        $serviceAccount = json_decode(file_get_contents($serviceAccountPath), true);
+        
+        if (!$serviceAccount) {
+            error_log("Invalid service account JSON");
+            return null;
+        }
+        
+        // Create JWT
+        $header = json_encode(['alg' => 'RS256', 'typ' => 'JWT']);
+        $now = time();
+        $payload = json_encode([
+            'iss' => $serviceAccount['client_email'],
+            'scope' => 'https://www.googleapis.com/auth/datastore',
+            'aud' => 'https://oauth2.googleapis.com/token',
+            'exp' => $now + 3600,
+            'iat' => $now
+        ]);
+        
+        // Base64url encode header and payload
+        $headerEncoded = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+        $payloadEncoded = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
+        
+        // Create signature
+        $privateKey = $serviceAccount['private_key'];
+        $signature = '';
+        openssl_sign($headerEncoded . "." . $payloadEncoded, $signature, $privateKey, 'SHA256');
+        $signatureEncoded = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+        
+        $jwt = $headerEncoded . "." . $payloadEncoded . "." . $signatureEncoded;
+        
+        // Exchange JWT for access token
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://oauth2.googleapis.com/token');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'assertion' => $jwt
+        ]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode === 200) {
+            $data = json_decode($response, true);
+            return $data['access_token'] ?? null;
+        }
+        
+        error_log("Failed to get access token: " . $response);
+        return null;
     }
     
     /**
@@ -108,11 +175,19 @@ class FirebaseDatabase {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
+        if ($this->accessToken) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $this->accessToken,
+                'Content-Type: application/json'
+            ]);
+        }
+        
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
         if ($httpCode !== 200) {
+            error_log("GET request failed: HTTP $httpCode, URL: $url, Response: $response");
             return null;
         }
         
@@ -185,12 +260,21 @@ class FirebaseDatabase {
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $headers = ['Content-Type: application/json'];
+        if ($this->accessToken) {
+            $headers[] = 'Authorization: Bearer ' . $this->accessToken;
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            error_log("UPDATE request failed: HTTP $httpCode, URL: $url, Response: $response");
+        }
         
         return $httpCode === 200;
     }
@@ -213,8 +297,13 @@ class FirebaseDatabase {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $headers = ['Content-Type: application/json'];
+        if ($this->accessToken) {
+            $headers[] = 'Authorization: Bearer ' . $this->accessToken;
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -227,6 +316,7 @@ class FirebaseDatabase {
             return ['name' => end($nameParts)];
         }
         
+        error_log("PUSH request failed: HTTP $httpCode, URL: $url, Response: $response");
         return null;
     }
     
@@ -242,9 +332,21 @@ class FirebaseDatabase {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
+        $headers = [];
+        if ($this->accessToken) {
+            $headers[] = 'Authorization: Bearer ' . $this->accessToken;
+        }
+        if (!empty($headers)) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+        
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            error_log("DELETE request failed: HTTP $httpCode, URL: $url, Response: $response");
+        }
         
         return $httpCode === 200;
     }

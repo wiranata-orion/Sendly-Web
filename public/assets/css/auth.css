@@ -109,85 +109,102 @@ body {
 /* Auth Card */
 .auth-card {
     width: 100%;
-    max-width: 420px;
-    background: rgba(26, 26, 46, 0.9);
+    max-width: 540px;
+    background: rgba(26, 26, 46, 0.95);
     backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
-    padding: 40px;
+    padding: 32px 40px;
     position: relative;
-    z-index: 1;
+    z-index: 100;
     box-shadow: var(--shadow-lg);
+}
+
+/* Register Card - Same size as base auth-card */
+.auth-card.register-card {
+    max-width: 540px;
+    padding: 32px 40px;
 }
 
 /* Auth Header */
 .auth-header {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .auth-header .logo {
-    width: 70px;
-    height: 70px;
+    width: 56px;
+    height: 56px;
     background: var(--primary-gradient);
     border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 16px;
+    margin: 0 auto 12px;
     box-shadow: var(--shadow-glow);
 }
 
 .auth-header .logo i {
-    font-size: 32px;
+    font-size: 24px;
     color: white;
 }
 
 .auth-header h1 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
     background: var(--primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .auth-header p {
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Form Styles */
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
+}
+
+/* Grid layout for register form */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
 }
 
 .form-group label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
 }
 
 .form-group label i {
     color: var(--primary-light);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .form-group input {
     width: 100%;
-    padding: 14px 16px;
+    padding: 12px 14px;
     background: var(--bg-glass);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
@@ -221,8 +238,13 @@ body {
 .error-message {
     font-size: 12px;
     color: var(--error-color);
-    min-height: 16px;
+    min-height: 0;
+    display: none;
+}
+
+.error-message:not(:empty) {
     display: block;
+    margin-top: 4px;
 }
 
 /* Password Input */
@@ -256,8 +278,8 @@ body {
 .password-strength {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 4px;
+    gap: 8px;
+    margin-top: 2px;
 }
 
 .strength-bar {
@@ -295,15 +317,22 @@ body {
     justify-content: space-between;
     font-size: 13px;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
+}
+
+/* Centered form options for register */
+.form-options.centered {
+    justify-content: center;
+    text-align: center;
 }
 
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
     color: var(--text-secondary);
+    font-size: 13px;
 }
 
 .checkbox-label input {
@@ -311,8 +340,8 @@ body {
 }
 
 .checkmark {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border: 2px solid var(--border-color);
     border-radius: 4px;
     display: flex;
@@ -330,7 +359,7 @@ body {
 .checkbox-label input:checked + .checkmark::after {
     content: '✓';
     color: white;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
 }
 
@@ -342,7 +371,7 @@ body {
     border: none;
     color: var(--primary-light);
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     font-family: inherit;
     padding: 0;
     transition: var(--transition-fast);
@@ -359,18 +388,18 @@ body {
 /* Buttons */
 .btn-primary {
     width: 100%;
-    padding: 14px 24px;
+    padding: 14px 20px;
     background: var(--primary-gradient);
     border: none;
     border-radius: var(--radius-md);
     color: white;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: var(--transition-normal);
     box-shadow: var(--shadow-glow);
     font-family: inherit;
@@ -426,20 +455,22 @@ body {
 /* Google Button */
 .btn-google {
     width: 100%;
-    padding: 14px 24px;
+    padding: 14px 20px;
     background: var(--bg-glass);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-primary);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: var(--transition-normal);
     font-family: inherit;
+    position: relative;
+    z-index: 10;
 }
 
 .btn-google:hover {
@@ -448,7 +479,7 @@ body {
 }
 
 .btn-google i {
-    font-size: 18px;
+    font-size: 16px;
     color: #ea4335;
 }
 
@@ -460,18 +491,18 @@ body {
 /* Outline Button */
 .btn-outline {
     width: 100%;
-    padding: 14px 24px;
+    padding: 14px 20px;
     background: transparent;
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-primary);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: var(--transition-normal);
     font-family: inherit;
     position: relative;
@@ -516,9 +547,10 @@ body {
 .divider {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     color: var(--text-muted);
-    font-size: 13px;
+    font-size: 12px;
+    margin: 4px 0;
 }
 
 .divider::before,
@@ -532,14 +564,21 @@ body {
 /* Auth Footer */
 .auth-footer {
     text-align: center;
-    margin-top: 24px;
-    padding-top: 24px;
+    margin-top: 20px;
+    padding-top: 20px;
     border-top: 1px solid var(--border-color);
+    position: relative;
+    z-index: 10;
 }
 
 .auth-footer p {
     color: var(--text-secondary);
     font-size: 14px;
+}
+
+.auth-footer .link-btn {
+    position: relative;
+    z-index: 11;
 }
 
 /* Toast Notifications */
@@ -691,6 +730,18 @@ body {
     line-height: 1.6;
 }
 
+.modal-body form {
+    margin-top: 20px;
+}
+
+.modal-body form .form-group {
+    margin-bottom: 20px;
+}
+
+.modal-body form .form-group:last-child {
+    margin-bottom: 0;
+}
+
 .modal-body h4 {
     color: var(--text-primary);
     font-size: 14px;
@@ -706,24 +757,77 @@ body {
     overflow-y: auto;
 }
 
+/* Custom Scrollbar for Modal */
+.modal-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+    background: var(--bg-glass);
+    border-radius: 4px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+    background: var(--primary-gradient);
+    border-radius: 4px;
+    border: 1px solid var(--bg-glass);
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-gradient-hover);
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:active {
+    background: var(--primary-dark);
+}
+
+/* Firefox scrollbar */
+.modal-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--bg-glass);
+}
+
 .modal-footer {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
 }
 
 /* Responsive */
+@media (max-width: 640px) {
+    .auth-card {
+        max-width: 440px;
+        padding: 36px 32px;
+    }
+
+    .auth-card.register-card {
+        max-width: 440px;
+        padding: 36px 32px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+}
+
 @media (max-width: 480px) {
     .auth-card {
-        padding: 30px 24px;
+        padding: 28px 24px;
+        max-width: 100%;
+    }
+
+    .auth-card.register-card {
+        padding: 28px 24px;
+        max-width: 100%;
     }
     
     .auth-header .logo {
-        width: 60px;
-        height: 60px;
+        width: 56px;
+        height: 56px;
     }
     
     .auth-header .logo i {
-        font-size: 26px;
+        font-size: 24px;
     }
     
     .auth-header h1 {
@@ -732,6 +836,28 @@ body {
     
     .form-options {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
     }
+    
+    .form-options.centered {
+        align-items: center;
+    }
+}
+
+/* Custom scrollbar for auth card */
+.auth-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.auth-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.auth-card::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.auth-card::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
 }

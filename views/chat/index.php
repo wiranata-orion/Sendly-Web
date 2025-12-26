@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sendly - Chat Application</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/style.css?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -47,7 +47,7 @@
 
             <!-- Search Box -->
             <div class="search-box" id="searchBox">
-                <input type="text" id="searchInput" placeholder="Cari kontak atau grup...">
+                <input type="text" id="searchInput" placeholder="Cari...">
             </div>
 
             <!-- Tabs -->
@@ -115,7 +115,9 @@
                             </div>
                             <div class="chat-info">
                                 <h4 class="chat-name"><?= htmlspecialchars($group['name']) ?></h4>
-                                <p class="chat-preview"><?= htmlspecialchars($group['description'] ?? 'Grup') ?></p>
+                                <?php if (!empty($group['description'])): ?>
+                                <p class="chat-preview"><?= htmlspecialchars($group['description']) ?></p>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -160,6 +162,11 @@
                         <span id="chatStatus">Pilih kontak atau grup untuk memulai</span>
                     </div>
                 </div>
+                <div class="chat-header-actions hidden" id="chatHeaderActions">
+                    <button class="icon-btn" id="groupSettingsBtn" title="Pengaturan Grup">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Messages Container -->
@@ -183,7 +190,7 @@
                     <input type="file" id="fileInput" hidden>
                     
                     <div class="message-input-wrapper">
-                        <textarea id="messageInput" placeholder="Ketik pesan..." rows="1"></textarea>
+                        <input type="text" id="messageInput" placeholder="Ketik pesan...">
                     </div>
                     
                     <button class="icon-btn emoji-btn" id="emojiBtn" title="Emoji">
@@ -289,6 +296,55 @@
         </div>
     </div>
 
+    <!-- Group Settings Modal (Owner Only) -->
+    <div class="modal hidden" id="groupSettingsModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-users-cog"></i> Pengaturan Grup</h3>
+                <button class="icon-btn close-modal" data-modal="groupSettingsModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Group Info Section -->
+                <div class="group-settings-section">
+                    <h4><i class="fas fa-info-circle"></i> Informasi Grup</h4>
+                    <div class="group-info-grid">
+                        <div class="group-info-item">
+                            <label>Nama Grup</label>
+                            <div class="group-info-value" id="gsGroupName">-</div>
+                        </div>
+                        <div class="group-info-item">
+                            <label>Kode Grup</label>
+                            <div class="group-info-value code-value">
+                                <span id="gsGroupCode">-</span>
+                                <button class="btn-copy-small" id="copyGroupCode" title="Salin Kode">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="group-info-item">
+                            <label>Tanggal Dibuat</label>
+                            <div class="group-info-value" id="gsCreatedAt">-</div>
+                        </div>
+                        <div class="group-info-item">
+                            <label>Deskripsi</label>
+                            <div class="group-info-value" id="gsDescription">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Members Section -->
+                <div class="group-settings-section">
+                    <h4><i class="fas fa-users"></i> Anggota Grup (<span id="gsMemberCount">0</span>)</h4>
+                    <div class="group-members-list" id="gsMembersList">
+                        <!-- Members will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Modal -->
     <?php include __DIR__ . '/../settings/index.php'; ?>
 
@@ -296,6 +352,38 @@
     <div class="emoji-picker hidden" id="emojiPicker">
         <div class="emoji-grid">
             <!-- Emojis will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Kick Member Confirmation Modal -->
+    <div class="modal hidden" id="kickMemberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-times"></i> Keluarkan Anggota</h3>
+                <button class="icon-btn close-modal" data-modal="kickMemberModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="kick-confirmation">
+                    <div class="kick-icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <h4>Konfirmasi Pengeluaran</h4>
+                    <p id="kickMessage">Apakah Anda yakin ingin mengeluarkan <strong id="kickMemberName">Nama Member</strong> dari grup ini?</p>
+                    <div class="kick-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Tindakan ini tidak dapat dibatalkan</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline close-modal" data-modal="kickMemberModal">Batal</button>
+                <button type="button" class="btn-danger" id="confirmKickBtn">
+                    <span class="btn-text"><i class="fas fa-user-times"></i> Keluarkan</span>
+                    <div class="spinner btn-spinner"></div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -330,6 +418,6 @@
     </script>
 
     <!-- Main JavaScript -->
-    <script src="<?= BASE_URL ?>/public/assets/js/app.js"></script>
+    <script src="<?= BASE_URL ?>/public/assets/js/app.js?v=<?= time() ?>"></script>
 </body>
 </html>

@@ -4,21 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sendly - Daftar</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/auth.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/auth.css?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="auth-container">
-        <!-- Background Effects -->
         <div class="bg-effects">
             <div class="bg-circle circle-1"></div>
             <div class="bg-circle circle-2"></div>
             <div class="bg-circle circle-3"></div>
         </div>
 
-        <!-- Auth Card -->
-        <div class="auth-card">
-            <!-- Logo & Brand -->
+        <div class="auth-card register-card">
             <div class="auth-header">
                 <div class="logo">
                     <i class="fas fa-paper-plane"></i>
@@ -27,59 +24,62 @@
                 <p>Buat akun baru</p>
             </div>
 
-            <!-- Register Form -->
             <form id="registerForm" class="auth-form" novalidate>
-                <div class="form-group">
-                    <label for="name">
-                        <i class="fas fa-user"></i>
-                        Nama Lengkap
-                    </label>
-                    <input type="text" id="name" name="name" required placeholder="Masukkan nama lengkap" autocomplete="name" minlength="2" maxlength="50">
-                    <span class="error-message" id="nameError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">
-                        <i class="fas fa-envelope"></i>
-                        Email
-                    </label>
-                    <input type="email" id="email" name="email" required placeholder="Masukkan email Anda" autocomplete="email">
-                    <span class="error-message" id="emailError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">
-                        <i class="fas fa-lock"></i>
-                        Password
-                    </label>
-                    <div class="password-input">
-                        <input type="password" id="password" name="password" required placeholder="Minimal 6 karakter" minlength="6" autocomplete="new-password">
-                        <button type="button" class="toggle-password" id="togglePasswordBtn">
-                            <i class="fas fa-eye" id="togglePasswordIcon"></i>
-                        </button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">
+                            <i class="fas fa-user"></i>
+                            Nama Lengkap
+                        </label>
+                        <input type="text" id="name" name="name" required placeholder="Masukkan nama lengkap" autocomplete="name" minlength="2" maxlength="50">
+                        <span class="error-message" id="nameError"></span>
                     </div>
-                    <span class="error-message" id="passwordError"></span>
-                    <div class="password-strength" id="passwordStrength">
-                        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
-                        <span class="strength-text" id="strengthText"></span>
+
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </label>
+                        <input type="email" id="email" name="email" required placeholder="Masukkan email Anda" autocomplete="email">
+                        <span class="error-message" id="emailError"></span>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="confirmPassword">
-                        <i class="fas fa-lock"></i>
-                        Konfirmasi Password
-                    </label>
-                    <div class="password-input">
-                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Ulangi password" autocomplete="new-password">
-                        <button type="button" class="toggle-password" id="toggleConfirmPasswordBtn">
-                            <i class="fas fa-eye" id="toggleConfirmPasswordIcon"></i>
-                        </button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i>
+                            Password
+                        </label>
+                        <div class="password-input">
+                            <input type="password" id="password" name="password" required placeholder="Minimal 6 karakter" minlength="6" autocomplete="new-password">
+                            <button type="button" class="toggle-password" id="togglePasswordBtn">
+                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                        <span class="error-message" id="passwordError"></span>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                            <span class="strength-text" id="strengthText"></span>
+                        </div>
                     </div>
-                    <span class="error-message" id="confirmPasswordError"></span>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">
+                            <i class="fas fa-lock"></i>
+                            Konfirmasi Password
+                        </label>
+                        <div class="password-input">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Ulangi password" autocomplete="new-password">
+                            <button type="button" class="toggle-password" id="toggleConfirmPasswordBtn">
+                                <i class="fas fa-eye" id="toggleConfirmPasswordIcon"></i>
+                            </button>
+                        </div>
+                        <span class="error-message" id="confirmPasswordError"></span>
+                    </div>
                 </div>
 
-                <div class="form-options">
+                <div class="form-options centered">
                     <label class="checkbox-label">
                         <input type="checkbox" name="terms" id="termsCheckbox" required>
                         <span class="checkmark"></span>
@@ -103,17 +103,14 @@
                 </button>
             </form>
 
-            <!-- Footer -->
             <div class="auth-footer">
-                <p>Sudah punya akun? <button type="button" class="link-btn" id="goToLoginBtn">Masuk</button></p>
+                <p>Sudah punya akun? <a href="#" class="link-btn" id="goToLoginBtn">Masuk</a></p>
             </div>
         </div>
 
-        <!-- Toast Container -->
         <div id="toastContainer" class="toast-container"></div>
     </div>
 
-    <!-- Terms Modal -->
     <div class="modal-overlay" id="termsModal">
         <div class="modal-box modal-large">
             <div class="modal-header">
@@ -142,7 +139,6 @@
         </div>
     </div>
 
-    <!-- Email Verification Modal -->
     <div class="modal-overlay" id="verifyEmailModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -174,12 +170,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>var BASE_URL = "<?= BASE_URL ?>";</script>
     <script src="<?= BASE_URL ?>/public/firebase-config.js"></script>
-    <script>BASE_URL = "<?= BASE_URL ?>";</script>
     <script src="<?= BASE_URL ?>/public/assets/js/auth.js"></script>
 </body>
 </html>

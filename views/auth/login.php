@@ -4,30 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sendly - Login</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/auth.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/auth.css?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="auth-container">
-        <!-- Background Effects -->
         <div class="bg-effects">
             <div class="bg-circle circle-1"></div>
             <div class="bg-circle circle-2"></div>
             <div class="bg-circle circle-3"></div>
         </div>
 
-        <!-- Auth Card -->
         <div class="auth-card">
-            <!-- Logo & Brand -->
             <div class="auth-header">
                 <div class="logo">
                     <i class="fas fa-paper-plane"></i>
                 </div>
                 <h1>Sendly</h1>
-                <p>Selamat datang kembali!</p>
+                <p>Masuk ke akun</p>
             </div>
 
-            <!-- Login Form -->
             <form id="loginForm" class="auth-form" novalidate>
                 <div class="form-group">
                     <label for="email">
@@ -76,17 +72,14 @@
                 </button>
             </form>
 
-            <!-- Footer -->
             <div class="auth-footer">
-                <p>Belum punya akun? <button type="button" class="link-btn" id="goToRegisterBtn">Daftar sekarang</button></p>
+                <p>Belum punya akun? <a href="#" class="link-btn" id="goToRegisterBtn">Daftar sekarang</a></p>
             </div>
         </div>
 
-        <!-- Toast Container -->
         <div id="toastContainer" class="toast-container"></div>
     </div>
 
-    <!-- Forgot Password Modal -->
     <div class="modal-overlay" id="forgotPasswordModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -109,7 +102,6 @@
         </div>
     </div>
 
-    <!-- Email Verification Modal -->
     <div class="modal-overlay" id="verifyEmailModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -141,12 +133,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>var BASE_URL = "<?= BASE_URL ?>";</script>
     <script src="<?= BASE_URL ?>/public/firebase-config.js"></script>
-    <script>BASE_URL = "<?= BASE_URL ?>";</script>
     <script src="<?= BASE_URL ?>/public/assets/js/auth.js"></script>
 </body>
 </html>

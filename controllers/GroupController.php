@@ -210,5 +210,44 @@ class GroupController {
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
+    
+    /**
+     * Kick member from group (owner only)
+     */
+    public function kickMember() {
+        header('Content-Type: application/json');
+        
+        try {
+            $user = UserModel::getCurrentUser();
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            if (empty($data['group_id']) || empty($data['member_id'])) {
+                echo json_encode(['success' => false, 'message' => 'Group ID dan Member ID wajib diisi']);
+                return;
+            }
+            
+            // Check if current user is the owner of the group
+            $group = $this->groupModel->getGroup($data['group_id']);
+            if (!$group || $group['owner_id'] !== $user['id']) {
+                echo json_encode(['success' => false, 'message' => 'Hanya owner yang bisa mengeluarkan anggota']);
+                return;
+            }
+            
+            // Cannot kick yourself
+            if ($data['member_id'] === $user['id']) {
+                echo json_encode(['success' => false, 'message' => 'Anda tidak bisa mengeluarkan diri sendiri']);
+                return;
+            }
+            
+            $result = $this->groupModel->removeMember($data['group_id'], $data['member_id']);
+            
+            echo json_encode([
+                'success' => $result,
+                'message' => $result ? 'Anggota berhasil dikeluarkan' : 'Gagal mengeluarkan anggota'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
+    }
 }
 

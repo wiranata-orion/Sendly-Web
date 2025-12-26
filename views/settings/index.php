@@ -76,50 +76,6 @@
                 </div>
             </div>
 
-            <div class="settings-section danger-zone">
-                <h4>Zona Berbahaya</h4>
-                
-                <!-- Delete Account -->
-                <div class="settings-item danger">
-                    <div class="settings-item-header">
-                        <div class="settings-item-icon danger">
-                            <i class="fas fa-trash-alt"></i>
-                        </div>
-                        <div class="settings-item-info">
-                            <span class="settings-item-title">Hapus Akun</span>
-                            <span class="settings-item-desc">Hapus akun secara permanen. Tindakan ini tidak dapat dibatalkan.</span>
-                        </div>
-                        <button class="btn btn-danger-small" id="deleteAccountBtn">
-                            <i class="fas fa-trash"></i> Hapus
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Account Confirmation Modal -->
-<div class="modal hidden" id="deleteAccountModal">
-    <div class="modal-content modal-small">
-        <div class="modal-header danger">
-            <h3><i class="fas fa-exclamation-triangle"></i> Hapus Akun</h3>
-            <button class="icon-btn close-modal" data-modal="deleteAccountModal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">
-                Anda yakin ingin menghapus akun? Semua data akan hilang dan tidak dapat dikembalikan.
-            </p>
-            <div class="form-group">
-                <label for="deletePassword">Masukkan Password untuk Konfirmasi</label>
-                <input type="password" id="deletePassword" placeholder="Password Anda" required>
-            </div>
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary close-modal" data-modal="deleteAccountModal">Batal</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteAccount">Hapus Akun</button>
-            </div>
         </div>
     </div>
 </div>

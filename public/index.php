@@ -31,6 +31,9 @@ $url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
 $url = filter_var($url, FILTER_SANITIZE_URL);
 $urlParts = !empty($url) ? explode('/', $url) : [];
 
+// Handle intent parameter for navigation (direct handling)
+$intent = isset($_GET['intent']) ? $_GET['intent'] : null;
+
 // Handle action parameter for API requests
 $action = isset($_GET['action']) ? $_GET['action'] : null;
 
@@ -80,11 +83,9 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $protectedRoutes = ['chat', 'contacts', 'groups', 'settings', 'profile'];
 $currentRoute = strtolower($urlParts[0] ?? '');
 
-// Jika akses protected route tanpa login → tampilkan login
+// Jika akses protected route tanpa login → redirect ke root (akan tampilkan login)
 if (in_array($currentRoute, $protectedRoutes) && !$isLoggedIn) {
-    require_once __DIR__ . '/../controllers/AuthController.php';
-    $controller = new AuthController();
-    $controller->login();
+    header('Location: ' . BASE_URL . '/');
     exit;
 }
 
@@ -96,10 +97,18 @@ if (empty($url) || $url === '' || $url === 'public') {
         $controller = new ChatController();
         $controller->index();
     } else {
-        // Belum login → tampilkan login
-        require_once __DIR__ . '/../controllers/AuthController.php';
-        $controller = new AuthController();
-        $controller->login();
+        // Belum login → cek intent dari query parameter
+        if ($intent === 'register') {
+            // Tampilkan register form
+            require_once __DIR__ . '/../controllers/AuthController.php';
+            $controller = new AuthController();
+            $controller->register();
+        } else {
+            // Tampilkan login form (default)
+            require_once __DIR__ . '/../controllers/AuthController.php';
+            $controller = new AuthController();
+            $controller->login();
+        }
     }
     exit;
 }
@@ -107,6 +116,12 @@ if (empty($url) || $url === '' || $url === 'public') {
 // Auth routes - login, register, logout
 $authRoutes = ['login', 'register', 'logout'];
 if (in_array($currentRoute, $authRoutes)) {
+    // Jika sudah login dan akses login/register → redirect ke chat
+    if ($isLoggedIn && in_array($currentRoute, ['login', 'register'])) {
+        header('Location: ' . BASE_URL . '/chat');
+        exit;
+    }
+    
     require_once __DIR__ . '/../controllers/AuthController.php';
     $controller = new AuthController();
     $controller->$currentRoute();

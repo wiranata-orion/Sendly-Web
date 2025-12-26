@@ -26,7 +26,7 @@ class GroupModel {
             'name' => $groupData['name'],
             'description' => $groupData['description'] ?? null,
             'avatar' => $groupData['avatar'] ?? null,
-            'creator_id' => $creatorId,
+            'owner_id' => $creatorId,
             'members' => $groupData['members'] ?? [$creatorId],
             'group_code' => $this->generateGroupCode(),
             'created_at' => time() * 1000
@@ -92,6 +92,13 @@ class GroupModel {
         $group = $this->db->get("groups/{$groupId}");
         if ($group) {
             $group['id'] = $groupId;
+            
+            // Fix legacy groups that use creator_id instead of owner_id
+            if (isset($group['creator_id']) && !isset($group['owner_id'])) {
+                $group['owner_id'] = $group['creator_id'];
+                // Update the database to fix this permanently
+                $this->db->update("groups/{$groupId}", ['owner_id' => $group['creator_id']]);
+            }
         }
         return $group;
     }

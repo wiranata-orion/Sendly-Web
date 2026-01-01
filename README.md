@@ -24,13 +24,6 @@ Aplikasi chat modern dengan fitur real-time messaging, chat personal dan grup.
 - Download file yang diterima
 - Batas ukuran 10MB
 
-### 🎨 UI/UX Modern
-- Dark theme dengan glassmorphism
-- Gradient colors (Purple-Blue)
-- Responsive design
-- Smooth animations
-- Toast notifications
-
 ## 🚀 Quick Start
 
 ### Prasyarat
@@ -56,7 +49,6 @@ Aplikasi chat modern dengan fitur real-time messaging, chat personal dan grup.
 - **Backend**: PHP 8.0+
 - **Database**: Firebase Realtime Database
 - **Storage**: Firebase Storage
-- **UI**: Glassmorphism design
 
 ## 📝 Cara Menggunakan
 

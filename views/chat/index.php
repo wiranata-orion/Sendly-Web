@@ -69,7 +69,7 @@
                 <?php if (!empty($contacts) && is_array($contacts)): ?>
                     <?php foreach ($contacts as $contact): ?>
                         <?php if (isset($contact['id']) && isset($contact['name'])): ?>
-                        <div class="chat-item" data-id="<?= htmlspecialchars($contact['id']) ?>" data-type="contact" data-name="<?= htmlspecialchars($contact['name']) ?>">
+                        <div class="chat-item" data-id="<?= htmlspecialchars($contact['id']) ?>" data-type="contact" data-name="<?= htmlspecialchars($contact['name']) ?>" data-avatar="<?= htmlspecialchars($contact['avatar'] ?? '') ?>">
                             <div class="chat-avatar">
                                 <?php if (!empty($contact['avatar'])): ?>
                                     <img src="<?= htmlspecialchars($contact['avatar']) ?>" alt="Avatar">
@@ -105,7 +105,7 @@
                 <?php if (!empty($groups) && is_array($groups)): ?>
                     <?php foreach ($groups as $group): ?>
                         <?php if (isset($group['id']) && isset($group['name'])): ?>
-                        <div class="chat-item" data-id="<?= htmlspecialchars($group['id']) ?>" data-type="group" data-name="<?= htmlspecialchars($group['name']) ?>">
+                        <div class="chat-item" data-id="<?= htmlspecialchars($group['id']) ?>" data-type="group" data-name="<?= htmlspecialchars($group['name']) ?>" data-avatar="<?= htmlspecialchars($group['avatar'] ?? '') ?>">
                             <div class="chat-avatar group-avatar">
                                 <?php if (!empty($group['avatar'])): ?>
                                     <img src="<?= htmlspecialchars($group['avatar']) ?>" alt="Avatar">

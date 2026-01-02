@@ -184,11 +184,6 @@
             <!-- Message Input -->
             <div class="message-input-area hidden" id="messageInputArea">
                 <div class="input-container">
-                    <button class="icon-btn" id="attachBtn" title="Lampirkan File">
-                        <i class="fas fa-paperclip"></i>
-                    </button>
-                    <input type="file" id="fileInput" hidden>
-                    
                     <div class="message-input-wrapper">
                         <input type="text" id="messageInput" placeholder="Ketik pesan...">
                     </div>
@@ -200,17 +195,6 @@
                     <button class="send-btn" id="sendBtn" title="Kirim">
                         <i class="fas fa-paper-plane"></i>
                     </button>
-                </div>
-                
-                <!-- File Preview -->
-                <div class="file-preview hidden" id="filePreview">
-                    <div class="file-preview-content">
-                        <i class="fas fa-file" id="fileIcon"></i>
-                        <span id="fileName">filename.pdf</span>
-                        <button class="icon-btn" id="removeFile">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
         </main>

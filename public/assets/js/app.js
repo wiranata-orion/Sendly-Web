@@ -197,12 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageInputArea: document.getElementById('messageInputArea'),
         messageInput: document.getElementById('messageInput'),
         sendBtn: document.getElementById('sendBtn'),
-        attachBtn: document.getElementById('attachBtn'),
         emojiBtn: document.getElementById('emojiBtn'),
-        fileInput: document.getElementById('fileInput'),
-        filePreview: document.getElementById('filePreview'),
-        fileName: document.getElementById('fileName'),
-        removeFile: document.getElementById('removeFile'),
         
         // Modals
         addContactModal: document.getElementById('addContactModal'),
@@ -314,19 +309,6 @@ function setupEventListeners() {
         });
     }
     
-    // File attachment
-    if (elements.attachBtn) {
-        elements.attachBtn.addEventListener('click', () => elements.fileInput?.click());
-    }
-    
-    if (elements.fileInput) {
-        elements.fileInput.addEventListener('change', handleFileSelect);
-    }
-    
-    if (elements.removeFile) {
-        elements.removeFile.addEventListener('click', clearFilePreview);
-    }
-    
     // Emoji picker
     if (elements.emojiBtn) {
         elements.emojiBtn.addEventListener('click', toggleEmojiPicker);
@@ -422,7 +404,7 @@ async function loadContactsFromFirestore() {
                 : '<i class="fas fa-user"></i>';
             
             html += `
-                <div class="chat-item" data-id="${doc.id}" data-type="contact" data-name="${contact.name || 'User'}">
+                <div class="chat-item" data-id="${doc.id}" data-type="contact" data-name="${contact.name || 'User'}" data-avatar="${contact.photoURL || ''}">
                     <div class="chat-avatar">${avatar}</div>
                     <div class="chat-info">
                         <h4 class="chat-name">${contact.name || 'User'}</h4>
@@ -507,7 +489,7 @@ async function loadGroupsFromFirestore() {
                         : '<i class="fas fa-users"></i>';
                     
                     html += `
-                        <div class="chat-item" data-id="${doc.id}" data-type="group" data-name="${group.name || 'Group'}">
+                        <div class="chat-item" data-id="${doc.id}" data-type="group" data-name="${group.name || 'Group'}" data-avatar="${group.avatar || ''}">
                             <div class="chat-avatar group-avatar">${avatar}</div>
                             <div class="chat-info">
                                 <h4 class="chat-name">${group.name || 'Group'}</h4>
@@ -622,8 +604,11 @@ function resetChatArea() {
     if (elements.chatName) elements.chatName.textContent = 'Sendly';
     if (elements.chatStatus) elements.chatStatus.textContent = 'Pilih kontak atau grup untuk memulai';
     if (elements.chatAvatar) {
-        const icon = elements.chatAvatar.querySelector('i');
-        if (icon) icon.className = 'fas fa-comments';
+        // Clear existing content and show default icon
+        elements.chatAvatar.innerHTML = '';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-comments';
+        elements.chatAvatar.appendChild(icon);
     }
     
     // Hide settings button
@@ -651,6 +636,7 @@ function handleChatSelect(e) {
     currentChatId = chatItem.getAttribute('data-id');
     currentChatType = chatItem.getAttribute('data-type');
     currentChatName = chatItem.getAttribute('data-name');
+    const chatAvatar = chatItem.getAttribute('data-avatar') || '';
     
     try {
         // Immediately clear unread badge for better UX
@@ -665,14 +651,14 @@ function handleChatSelect(e) {
         markMessagesAsRead(currentChatId, currentChatType);
         
         // Update UI
-        openChat(currentChatId, currentChatType, currentChatName);
+        openChat(currentChatId, currentChatType, currentChatName, chatAvatar);
         
         // Load messages
         loadMessages(currentChatId, currentChatType);
     } catch (error) {
         console.error('Error opening chat:', error);
         // Fallback: just open chat without marking as read
-        openChat(currentChatId, currentChatType, currentChatName);
+        openChat(currentChatId, currentChatType, currentChatName, chatAvatar);
         loadMessages(currentChatId, currentChatType);
         setTimeout(() => scrollToBottom(true), 0);
     }
@@ -681,7 +667,7 @@ function handleChatSelect(e) {
 // ==========================================
 // Open Chat
 // ==========================================
-async function openChat(chatId, chatType, chatName) {
+async function openChat(chatId, chatType, chatName, chatAvatar = '') {
     // Hide welcome message
     elements.welcomeMessage?.classList.add('hidden');
     elements.messagesList?.classList.remove('hidden');
@@ -699,11 +685,29 @@ async function openChat(chatId, chatType, chatName) {
         }
     }
     
-    // Update avatar icon
+    // Update avatar
     if (elements.chatAvatar) {
-        const icon = elements.chatAvatar.querySelector('i');
-        if (icon) {
+        // Clear existing content
+        elements.chatAvatar.innerHTML = '';
+        
+        if (chatAvatar && chatAvatar.trim() !== '') {
+            // Show image avatar
+            const img = document.createElement('img');
+            img.src = chatAvatar;
+            img.alt = 'Avatar';
+            img.onerror = function() {
+                // Fallback to icon if image fails to load
+                elements.chatAvatar.innerHTML = '';
+                const icon = document.createElement('i');
+                icon.className = chatType === 'group' ? 'fas fa-users' : 'fas fa-user';
+                elements.chatAvatar.appendChild(icon);
+            };
+            elements.chatAvatar.appendChild(img);
+        } else {
+            // Show icon avatar
+            const icon = document.createElement('i');
             icon.className = chatType === 'group' ? 'fas fa-users' : 'fas fa-user';
+            elements.chatAvatar.appendChild(icon);
         }
     }
     
@@ -1212,23 +1216,6 @@ function displayMessage(message) {
         messageContent += `<div class="message-text">${escapeHtml(message.text)}</div>`;
     }
     
-    // Add file if exists
-    if (message.fileUrl) {
-        if (message.fileType && message.fileType.startsWith('image/')) {
-            messageContent += `<img src="${message.fileUrl}" alt="Image" class="message-image" onclick="window.open('${message.fileUrl}', '_blank')">`;
-        } else {
-            messageContent += `
-                <div class="message-file" onclick="window.open('${message.fileUrl}', '_blank')">
-                    <i class="fas fa-file"></i>
-                    <div class="message-file-info">
-                        <div class="message-file-name">${escapeHtml(message.fileName || 'File')}</div>
-                        <div class="message-file-type">${message.fileType || 'file'}</div>
-                    </div>
-                </div>
-            `;
-        }
-    }
-    
     // Add timestamp - use local time as fallback for new messages
     let time = formatTime(message.timestamp);
     if (!time && message.createdAt) {
@@ -1276,10 +1263,9 @@ async function sendMessage() {
     }
     
     const text = elements.messageInput?.value.trim();
-    const file = elements.fileInput?.files[0];
     
     // Don't do anything if empty
-    if (!text && !file) {
+    if (!text) {
         return;
     }
     
@@ -1300,14 +1286,6 @@ async function sendMessage() {
         
         if (text) {
             message.text = text;
-        }
-        
-        // Upload file if exists
-        if (file) {
-            const fileUrl = await uploadFile(file);
-            message.fileUrl = fileUrl;
-            message.fileName = file.name;
-            message.fileType = file.type;
         }
         
         // Create chat ID for private chats (sorted to ensure consistency)
@@ -1342,7 +1320,6 @@ async function sendMessage() {
         if (elements.messageInput) {
             elements.messageInput.value = '';
         }
-        clearFilePreview();
         
     } catch (error) {
         console.error('Error sending message:', error);
@@ -1353,60 +1330,6 @@ async function sendMessage() {
             elements.sendBtn.disabled = false;
             elements.sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
         }
-    }
-}
-
-// ==========================================
-// File Upload
-// ==========================================
-async function uploadFile(file) {
-    const fileName = `${Date.now()}_${file.name}`;
-    const storageRef = storage.ref(`uploads/${fileName}`);
-    
-    const snapshot = await storageRef.put(file);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-    
-    return downloadURL;
-}
-
-function handleFileSelect(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        showToast('Ukuran file maksimal 10MB', 'error');
-        e.target.value = '';
-        return;
-    }
-    
-    // Show preview
-    if (elements.filePreview && elements.fileName) {
-        elements.fileName.textContent = file.name;
-        elements.filePreview.classList.remove('hidden');
-        
-        // Update icon based on file type
-        const fileIcon = document.getElementById('fileIcon');
-        if (fileIcon) {
-            if (file.type.startsWith('image/')) {
-                fileIcon.className = 'fas fa-image';
-            } else if (file.type.startsWith('video/')) {
-                fileIcon.className = 'fas fa-video';
-            } else if (file.type.includes('pdf')) {
-                fileIcon.className = 'fas fa-file-pdf';
-            } else {
-                fileIcon.className = 'fas fa-file';
-            }
-        }
-    }
-}
-
-function clearFilePreview() {
-    if (elements.fileInput) {
-        elements.fileInput.value = '';
-    }
-    if (elements.filePreview) {
-        elements.filePreview.classList.add('hidden');
     }
 }
 
@@ -2066,23 +1989,6 @@ function displayMessageInOrder(message) {
     // Add message text
     if (message.text) {
         messageContent += `<div class="message-text">${escapeHtml(message.text)}</div>`;
-    }
-    
-    // Add file if exists
-    if (message.fileUrl) {
-        if (message.fileType && message.fileType.startsWith('image/')) {
-            messageContent += `<img src="${message.fileUrl}" alt="Image" class="message-image" onclick="window.open('${message.fileUrl}', '_blank')">`;
-        } else {
-            messageContent += `
-                <div class="message-file" onclick="window.open('${message.fileUrl}', '_blank')">
-                    <i class="fas fa-file"></i>
-                    <div class="message-file-info">
-                        <div class="message-file-name">${escapeHtml(message.fileName || 'File')}</div>
-                        <div class="message-file-type">${message.fileType || 'file'}</div>
-                    </div>
-                </div>
-            `;
-        }
     }
     
     // Add timestamp

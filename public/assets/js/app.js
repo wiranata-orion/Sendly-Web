@@ -314,6 +314,12 @@ function setupEventListeners() {
         elements.emojiBtn.addEventListener('click', toggleEmojiPicker);
     }
     
+    // Back button for mobile - return to sidebar
+    const backToSidebar = document.getElementById('backToSidebar');
+    if (backToSidebar) {
+        backToSidebar.addEventListener('click', showSidebarMobile);
+    }
+    
     // Add buttons
     if (elements.addContactBtn) {
         elements.addContactBtn.addEventListener('click', () => {
@@ -371,74 +377,84 @@ async function loadContactsFromFirestore() {
         return;
     }
     
+    // Unsubscribe from previous listener
+    if (contactsUnsubscribe) {
+        contactsUnsubscribe();
+    }
+    
     try {
-        console.log('Fetching contacts for user:', user.id);
-        const contactsSnapshot = await firebase.firestore()
+        console.log('Setting up realtime contacts listener for user:', user.id);
+        
+        // Listen to contacts in real-time
+        contactsUnsubscribe = firebase.firestore()
             .collection('users').doc(user.id)
             .collection('contacts')
-            .get();
-        
-        console.log('Contacts snapshot size:', contactsSnapshot.size);
-        
-        const contactList = document.getElementById('contactList');
-        if (!contactList) {
-            console.log('Contact list element not found');
-            return;
-        }
-        
-        if (contactsSnapshot.empty) {
-            contactList.innerHTML = `
-                <div class="empty-list">
-                    <i class="fas fa-user-plus"></i>
-                    <p>Belum ada kontak</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        contactsSnapshot.forEach(doc => {
-            const contact = doc.data();
-            const avatar = contact.photoURL 
-                ? `<img src="${contact.photoURL}" alt="Avatar">` 
-                : '<i class="fas fa-user"></i>';
-            
-            html += `
-                <div class="chat-item" data-id="${doc.id}" data-type="contact" data-name="${contact.name || 'User'}" data-avatar="${contact.photoURL || ''}">
-                    <div class="chat-avatar">${avatar}</div>
-                    <div class="chat-info">
-                        <h4 class="chat-name">${contact.name || 'User'}</h4>
-                        <p class="chat-preview">${contact.email || ''}</p>
-                    </div>
-                </div>
-            `;
-        });
-        
-        contactList.innerHTML = html;
-        
-        // Re-attach click listeners
-        contactList.querySelectorAll('.chat-item').forEach(item => {
-            item.addEventListener('click', handleChatSelect);
-        });
-        
-        // Update unread counts for all contacts and listen for new messages
-        contactsSnapshot.forEach(doc => {
-            updateUnreadCount(doc.id, 'contact');
-            // Start listening for messages from this contact
-            listenForChatMessages(doc.id, 'contact');
-        });
-        
-        console.log('✅ Contacts loaded from Firestore');
+            .onSnapshot((snapshot) => {
+                console.log('Contacts snapshot received, size:', snapshot.size);
+                
+                const contactList = document.getElementById('contactList');
+                if (!contactList) {
+                    console.log('Contact list element not found');
+                    return;
+                }
+                
+                if (snapshot.empty) {
+                    contactList.innerHTML = `
+                        <div class="empty-list">
+                            <i class="fas fa-user-plus"></i>
+                            <p>Belum ada kontak</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                snapshot.forEach(doc => {
+                    const contact = doc.data();
+                    const avatar = contact.photoURL 
+                        ? `<img src="${contact.photoURL}" alt="Avatar">` 
+                        : '<i class="fas fa-user"></i>';
+                    
+                    html += `
+                        <div class="chat-item" data-id="${doc.id}" data-type="contact" data-name="${contact.name || 'User'}" data-avatar="${contact.photoURL || ''}">
+                            <div class="chat-avatar">${avatar}</div>
+                            <div class="chat-info">
+                                <h4 class="chat-name">${contact.name || 'User'}</h4>
+                                <p class="chat-preview">${contact.email || ''}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                contactList.innerHTML = html;
+                
+                // Re-attach click listeners
+                contactList.querySelectorAll('.chat-item').forEach(item => {
+                    item.addEventListener('click', handleChatSelect);
+                });
+                
+                // Update unread counts for all contacts and listen for new messages
+                snapshot.forEach(doc => {
+                    updateUnreadCount(doc.id, 'contact');
+                    // Start listening for messages from this contact
+                    listenForChatMessages(doc.id, 'contact');
+                });
+                
+                console.log('✅ Contacts updated from Firestore (realtime)');
+            }, (error) => {
+                console.error('Error loading contacts:', error);
+            });
     } catch (error) {
-        console.error('Error loading contacts:', error);
+        console.error('Error setting up contacts listener:', error);
     }
 }
 
 // ==========================================
 // Load Groups from Firestore
 // ==========================================
-// Global variable for groups listener
+// Global variables for listeners
 let groupsUnsubscribe = null;
+let contactsUnsubscribe = null;
 
 async function loadGroupsFromFirestore() {
     console.log('Loading groups from Firestore...');
@@ -668,6 +684,9 @@ function handleChatSelect(e) {
 // Open Chat
 // ==========================================
 async function openChat(chatId, chatType, chatName, chatAvatar = '') {
+    // Hide sidebar on mobile when opening chat
+    handleMobileChatOpen();
+    
     // Hide welcome message
     elements.welcomeMessage?.classList.add('hidden');
     elements.messagesList?.classList.remove('hidden');
@@ -821,6 +840,8 @@ function loadMessages(chatId, chatType) {
                     displayMessage(message);
                 });
                 
+                // Scroll to bottom after first load
+                setTimeout(() => scrollToBottom(true), 100);
 
             } else {
                 // Subsequent updates: re-render all messages to maintain order
@@ -1239,6 +1260,10 @@ function displayMessage(message) {
     
     messageEl.innerHTML = messageContent;
     elements.messagesList.appendChild(messageEl);
+    
+    // Scroll to bottom after adding message
+    scrollToBottom(true);
+    
     // If the message contains an image, ensure we scroll after it loads
     const img = messageEl.querySelector('.message-image');
     if (img) {
@@ -1900,17 +1925,18 @@ function generateGroupCode() {
 function scrollToBottom(force = false) {
     if (elements.messagesContainer) {
         const container = elements.messagesContainer;
-        // With flex-direction: column-reverse, scrollTop 0 is the bottom
+        // Scroll to bottom of container
         if (force) {
             container.style.scrollBehavior = 'auto';
-            container.scrollTop = 0;
+            container.scrollTop = container.scrollHeight;
             container.style.scrollBehavior = 'smooth';
             return;
         }
-        // Check if near bottom (which is scrollTop near 0 with column-reverse)
+        // Check if user is near the bottom
         const threshold = 100;
-        if (container.scrollTop <= threshold) {
-            container.scrollTop = 0;
+        const isNearBottom = (container.scrollHeight - container.scrollTop - container.clientHeight) <= threshold;
+        if (isNearBottom) {
+            container.scrollTop = container.scrollHeight;
         }
     }
 }
@@ -2395,7 +2421,7 @@ function initializeSettings() {
                 
                 showToast('Akun berhasil dihapus', 'success');
                 setTimeout(() => {
-                    window.location.href = BASE_URL + '/login';
+                    window.location.href = window.location.origin + '/';
                 }, 1500);
             } catch (error) {
                 console.error('Delete account error:', error);
@@ -2672,11 +2698,102 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 function cleanURL() {
     // Remove route from URL, keep only base path
-    const basePath = '/Website-Platform/';
-    if (window.location.pathname !== basePath && window.location.pathname !== basePath.slice(0, -1)) {
+    // Selalu gunakan root path untuk sendly.xo.je
+    var basePath = '/';
+    
+    // Hapus semua path dan parameter, hanya tampilkan domain + basePath
+    var currentPath = window.location.pathname;
+    var hasParams = window.location.search.length > 0;
+    
+    if (currentPath !== basePath && currentPath !== '/') {
+        history.replaceState(null, '', basePath);
+    } else if (hasParams) {
+        // Hapus parameter dari URL
         history.replaceState(null, '', basePath);
     }
 }
+
+// ==========================================
+// Logout Handler - Clean URL
+// ==========================================
+function handleLogout(event) {
+    if (event) event.preventDefault();
+    
+    console.log('Logging out...');
+    console.log('Current BASE_URL:', BASE_URL);
+    console.log('Current origin:', window.location.origin);
+    
+    // Update user status to offline in Firestore
+    const user = getCurrentUser();
+    if (user && user.id && typeof firebase !== 'undefined') {
+        firebase.firestore().collection('users').doc(user.id).update({
+            status: 'offline',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => console.error('Error updating status:', err));
+        
+        // Sign out from Firebase
+        firebase.auth().signOut().catch(err => console.error('Firebase signout error:', err));
+    }
+    
+    // Cleanup listeners
+    resetUnreadCounts(null);
+    cleanupChatMessageListeners();
+    
+    // Use current origin for redirect to avoid localhost issue
+    const currentOrigin = window.location.origin;
+    
+    // Call logout endpoint then redirect to clean URL
+    fetch(currentOrigin + '/auth/logout', {
+        method: 'GET',
+        credentials: 'same-origin'
+    }).finally(() => {
+        // Redirect to current origin (not BASE_URL which might be cached wrong)
+        window.location.href = currentOrigin + '/';
+    });
+}
+
+// ==========================================
+// Mobile Navigation Functions
+// ==========================================
+function isMobileView() {
+    return window.innerWidth <= 900;
+}
+
+function showSidebarMobile() {
+    console.log('showSidebarMobile called');
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.classList.remove('hidden-mobile');
+        console.log('Sidebar shown');
+    }
+}
+
+function hideSidebarMobile() {
+    console.log('hideSidebarMobile called');
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar && isMobileView()) {
+        sidebar.classList.add('hidden-mobile');
+        console.log('Sidebar hidden');
+    }
+}
+
+// Handle chat selection on mobile - hide sidebar when chat is opened
+function handleMobileChatOpen() {
+    console.log('handleMobileChatOpen called, isMobile:', isMobileView());
+    if (isMobileView()) {
+        hideSidebarMobile();
+    }
+}
+
+// Handle resize - reset sidebar visibility on desktop
+window.addEventListener('resize', () => {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        if (!isMobileView()) {
+            sidebar.classList.remove('hidden-mobile');
+        }
+    }
+});
 
 // ==========================================
 // CSS for fade out animation

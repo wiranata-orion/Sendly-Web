@@ -1,10 +1,18 @@
 <?php
 /**
  * Main Entry Point - Sendly Chat Application
- * Clean URL - hanya tampilkan /Website-Platform/
+ * Clean URL - hanya tampilkan domain tanpa path atau parameter
  */
 
-session_start();
+// Session configuration untuk shared hosting
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_samesite', 'Lax');
+
+// Start session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Load configuration
 require_once __DIR__ . '/../config/firebase.php';
@@ -31,8 +39,17 @@ $url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
 $url = filter_var($url, FILTER_SANITIZE_URL);
 $urlParts = !empty($url) ? explode('/', $url) : [];
 
-// Handle intent parameter for navigation (direct handling)
+// Handle AJAX request untuk load view tanpa ubah URL
+$isAjax = isset($_GET['_ajax']) && $_GET['_ajax'] == '1';
+$requestedView = isset($_GET['_view']) ? $_GET['_view'] : null;
+
+// Handle intent parameter untuk navigasi (backward compatible)
 $intent = isset($_GET['intent']) ? $_GET['intent'] : null;
+
+// Jika ada intent parameter, gunakan sebagai view
+if ($intent && !$requestedView) {
+    $requestedView = $intent;
+}
 
 // Handle action parameter for API requests
 $action = isset($_GET['action']) ? $_GET['action'] : null;
@@ -97,8 +114,8 @@ if (empty($url) || $url === '' || $url === 'public') {
         $controller = new ChatController();
         $controller->index();
     } else {
-        // Belum login → cek intent dari query parameter
-        if ($intent === 'register') {
+        // Belum login → cek view yang diminta (via AJAX atau intent)
+        if ($requestedView === 'register') {
             // Tampilkan register form
             require_once __DIR__ . '/../controllers/AuthController.php';
             $controller = new AuthController();
@@ -116,9 +133,9 @@ if (empty($url) || $url === '' || $url === 'public') {
 // Auth routes - login, register, logout
 $authRoutes = ['login', 'register', 'logout'];
 if (in_array($currentRoute, $authRoutes)) {
-    // Jika sudah login dan akses login/register → redirect ke chat
+    // Jika sudah login dan akses login/register → redirect ke root (akan tampilkan chat)
     if ($isLoggedIn && in_array($currentRoute, ['login', 'register'])) {
-        header('Location: ' . BASE_URL . '/chat');
+        header('Location: ' . BASE_URL . '/');
         exit;
     }
     

@@ -37,18 +37,31 @@
     box-sizing: border-box;
 }
 
+html {
+    /* Prevent iOS zoom on input focus */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     overflow-x: hidden;
+    /* Safe area for notch devices */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 /* Auth Container */
 .auth-container {
     min-height: 100vh;
+    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -793,56 +806,312 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 16px;
+    }
+
     .auth-card {
-        max-width: 440px;
-        padding: 36px 32px;
+        max-width: 100%;
+        padding: 32px 24px;
+        border-radius: var(--radius-lg);
     }
 
     .auth-card.register-card {
-        max-width: 440px;
-        padding: 36px 32px;
+        max-width: 100%;
+        padding: 32px 24px;
     }
 
     .form-row {
         grid-template-columns: 1fr;
-        gap: 18px;
-    }
-}
-
-@media (max-width: 480px) {
-    .auth-card {
-        padding: 28px 24px;
-        max-width: 100%;
-    }
-
-    .auth-card.register-card {
-        padding: 28px 24px;
-        max-width: 100%;
+        gap: 14px;
     }
     
     .auth-header .logo {
-        width: 56px;
-        height: 56px;
+        width: 52px;
+        height: 52px;
     }
     
     .auth-header .logo i {
-        font-size: 24px;
+        font-size: 22px;
     }
     
     .auth-header h1 {
         font-size: 24px;
     }
     
+    .auth-header p {
+        font-size: 13px;
+    }
+    
+    .form-group input {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .btn-primary,
+    .btn-google {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+    
+    /* Modal responsive */
+    .modal-box {
+        width: 95%;
+        max-width: 400px;
+        margin: 16px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        padding: 16px 20px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    /* Background effects lebih kecil di mobile */
+    .circle-1 {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        left: -100px;
+    }
+    
+    .circle-2 {
+        width: 250px;
+        height: 250px;
+        bottom: -80px;
+        right: -80px;
+    }
+    
+    .circle-3 {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 40px;
+    }
+
+    .auth-card {
+        padding: 24px 20px;
+        border-radius: var(--radius-md);
+    }
+
+    .auth-card.register-card {
+        padding: 24px 20px;
+    }
+    
+    .auth-header {
+        margin-bottom: 20px;
+    }
+    
+    .auth-header .logo {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 10px;
+    }
+    
+    .auth-header .logo i {
+        font-size: 20px;
+    }
+    
+    .auth-header h1 {
+        font-size: 22px;
+    }
+    
+    .auth-header p {
+        font-size: 12px;
+    }
+    
+    .auth-form {
+        gap: 12px;
+    }
+    
+    .form-group label {
+        font-size: 11px;
+    }
+    
+    .form-group input {
+        padding: 12px 14px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
     .form-options {
         flex-direction: column;
         align-items: center;
+        gap: 10px;
     }
     
     .form-options.centered {
         align-items: center;
     }
+    
+    .checkbox-label {
+        font-size: 12px;
+    }
+    
+    .forgot-link {
+        font-size: 12px;
+    }
+    
+    .btn-primary,
+    .btn-google {
+        padding: 14px 16px;
+        font-size: 14px;
+    }
+    
+    .divider {
+        margin: 16px 0;
+    }
+    
+    .auth-footer {
+        margin-top: 16px;
+    }
+    
+    .auth-footer p {
+        font-size: 13px;
+    }
+    
+    /* Modal extra small */
+    .modal-box {
+        width: calc(100% - 24px);
+        margin: 12px;
+        border-radius: var(--radius-md);
+    }
+    
+    .modal-header h3 {
+        font-size: 16px;
+    }
+    
+    .modal-body {
+        padding: 16px;
+    }
+    
+    .modal-body p {
+        font-size: 13px;
+    }
+    
+    /* Verify modal */
+    .modal-body div[style*="font-size: 60px"] {
+        font-size: 48px !important;
+    }
+    
+    /* Background effects minimal di mobile kecil */
+    .circle-1,
+    .circle-2 {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .circle-3 {
+        display: none;
+    }
 }
+
+/* Extra small devices (iPhone SE, etc) */
+@media (max-width: 375px) {
+    .auth-container {
+        padding: 10px;
+        padding-top: 24px;
+    }
+    
+    .auth-card {
+        padding: 20px 16px;
+    }
+    
+    .auth-header .logo {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .auth-header h1 {
+        font-size: 20px;
+    }
+    
+    .form-group input {
+        padding: 11px 12px;
+    }
+    
+    .btn-primary,
+    .btn-google {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+    
+    .btn-google i {
+        font-size: 16px;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .auth-container {
+        padding: 10px;
+        align-items: flex-start;
+    }
+    
+    .auth-card {
+        padding: 20px 24px;
+    }
+    
+    .auth-header {
+        margin-bottom: 12px;
+    }
+    
+    .auth-header .logo {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 8px;
+    }
+    
+    .auth-header h1 {
+        font-size: 20px;
+        margin-bottom: 2px;
+    }
+    
+    .auth-form {
+        gap: 10px;
+    }
+    
+    .bg-effects {
+        display: none;
+    }
+    
+    .modal-box {
+        max-height: 95vh;
+    }
+}
+
+/* Tablet portrait */
+@media (min-width: 481px) and (max-width: 768px) {
+    .auth-card {
+        max-width: 480px;
+        padding: 36px 32px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+}
+
+/* Large tablets and small laptops */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .auth-card {
+        max-width: 500px;
+        padding: 36px 36px;
+    }
+}
+
+/* Desktop - already defined above with max-width: 540px */
 
 /* Custom scrollbar for auth card */
 .auth-card::-webkit-scrollbar {

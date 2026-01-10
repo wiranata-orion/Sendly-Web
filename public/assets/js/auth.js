@@ -1,6 +1,7 @@
 /**
  * Sendly Authentication
  * Semua event pakai addEventListener, tidak ada onclick di HTML
+ * Clean URL - selalu tampilkan domain saja tanpa path
  */
 
 (function() {
@@ -21,12 +22,80 @@
         console.log('Initializing auth...');
         console.log('BASE_URL:', typeof BASE_URL !== 'undefined' ? BASE_URL : 'NOT DEFINED');
         
+        // Clean URL - hapus semua parameter dari URL
+        cleanAuthURL();
+        
         // Tunggu Firebase siap
         waitForFirebase(function() {
             console.log('Firebase ready, setting up handlers');
             setupEventHandlers();
         });
     }
+    
+    // Clean URL - pastikan URL hanya menampilkan domain tanpa parameter
+    function cleanAuthURL() {
+        var basePath = getBasePath();
+        // Cek apakah URL memiliki parameter atau path tambahan
+        if (window.location.search || (window.location.pathname !== basePath && window.location.pathname !== basePath.replace(/\/$/, ''))) {
+            history.replaceState(null, '', basePath);
+        }
+    }
+    
+    // Get base path berdasarkan environment
+    function getBasePath() {
+        // Selalu gunakan root path untuk sendly.xo.je
+        return '/';
+    }
+    
+    // Load auth view (login/register) secara AJAX tanpa mengubah URL
+    function loadAuthView(view) {
+        console.log('Loading view:', view);
+        
+        // Fetch konten view via AJAX
+        var url = BASE_URL + '/?_ajax=1&_view=' + view;
+        
+        fetch(url, {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(html) {
+            // Replace konten auth-container
+            var container = document.querySelector('.auth-container');
+            if (container) {
+                // Parse HTML response
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var newContainer = doc.querySelector('.auth-container');
+                
+                if (newContainer) {
+                    container.innerHTML = newContainer.innerHTML;
+                    
+                    // Re-initialize event handlers
+                    setupEventHandlers();
+                    
+                    // Update document title
+                    var title = doc.querySelector('title');
+                    if (title) {
+                        document.title = title.textContent;
+                    }
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error loading view:', error);
+            // Fallback - reload halaman using current origin
+            window.location.href = window.location.origin + '/';
+        });
+    }
+    
+    // Expose loadAuthView untuk digunakan dari luar
+    window.loadAuthView = loadAuthView;
     
     function waitForFirebase(callback) {
         var attempts = 0;
@@ -102,8 +171,8 @@
             goToRegisterBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 console.log('Go to register clicked');
-                // Direct redirect with intent parameter
-                window.location.href = BASE_URL + '/?intent=register';
+                // Use History API to keep URL clean
+                loadAuthView('register');
             });
         }
         
@@ -112,8 +181,8 @@
             goToLoginBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 console.log('Go to login clicked');
-                // Direct redirect with intent parameter
-                window.location.href = BASE_URL + '/?intent=login';
+                // Use History API to keep URL clean
+                loadAuthView('login');
             });
         }
         if (googleLoginBtn) {
@@ -445,11 +514,10 @@
                     .then(function() { return user.getIdToken(); })
                     .then(function(token) { return createSession(token, user); });
             })
-            .then(function() {
-                showToast('Login berhasil!', 'success');
-                setTimeout(function() {
-                    window.location.href = BASE_URL + '/chat';
-                }, 1000);
+            .then(function(sessionResult) {
+                setLoading(loginBtn, false);
+                // Langsung redirect ke dashboard tanpa modal
+                window.location.href = BASE_URL + '/';
             })
             .catch(function(error) {
                 setLoading(loginBtn, false);
@@ -607,11 +675,9 @@
                     .then(function() { return user.getIdToken(); })
                     .then(function(token) { return createSession(token, user); });
             })
-            .then(function() {
-                showToast('Login berhasil!', 'success');
-                setTimeout(function() {
-                    window.location.href = BASE_URL + '/chat';
-                }, 1000);
+            .then(function(sessionResult) {
+                // Tampilkan modal sukses dengan tombol masuk
+                showLoginSuccessModal();
             })
             .catch(function(error) {
                 console.error('Google login error:', error);
@@ -725,10 +791,10 @@
                     .then(function() { return user.getIdToken(); })
                     .then(function(token) { return createSession(token, user); })
                     .then(function() {
-                        showToast('Email terverifikasi!', 'success');
-                        setTimeout(function() {
-                            window.location.href = BASE_URL + '/chat';
-                        }, 1000);
+                        // Tutup verify modal dan tampilkan success modal
+                        var verifyModal = document.getElementById('verifyEmailModal');
+                        if (verifyModal) closeModal(verifyModal);
+                        showLoginSuccessModal();
                     });
                 } else {
                     showToast('Email belum diverifikasi, cek inbox/spam', 'error');
@@ -738,6 +804,27 @@
                 setLoading(btn, false);
                 showToast('Gagal memeriksa status', 'error');
             });
+    }
+    
+    // Fungsi untuk menampilkan modal sukses login dengan tombol masuk manual
+    function showLoginSuccessModal() {
+        // Hapus modal lama jika ada
+        var existingModal = document.getElementById('loginSuccessModal');
+        if (existingModal) existingModal.remove();
+        
+        // Buat modal baru
+        var modal = document.createElement('div');
+        modal.id = 'loginSuccessModal';
+        modal.className = 'modal-overlay show';
+        modal.innerHTML = '\
+            <div class="modal" style="text-align: center; max-width: 400px;">\
+                <div style="font-size: 60px; color: #4CAF50; margin-bottom: 20px;">✓</div>\
+                <h2 style="color: #333; margin-bottom: 10px;">Login Berhasil!</h2>\
+                <p style="color: #666; margin-bottom: 25px;">Klik tombol di bawah untuk masuk ke dashboard</p>\
+                <a href="' + BASE_URL + '/" class="btn-primary" style="display: inline-block; padding: 15px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Masuk ke Dashboard</a>\
+            </div>\
+        ';
+        document.body.appendChild(modal);
     }
     
     function showVerifyModal(email) {

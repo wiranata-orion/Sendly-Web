@@ -5,12 +5,12 @@
  */
 
 // Firebase Web SDK Config (untuk frontend JavaScript)
-define('FIREBASE_API_KEY', 'AIzaSyD2x522ieJowJf1qn6OdQ4CBrC-D__reL8'); // Dapatkan dari Firebase Console
-define('FIREBASE_AUTH_DOMAIN', 'sendly-2702c.firebaseapp.com');
-define('FIREBASE_PROJECT_ID', 'sendly-2702c');
-define('FIREBASE_STORAGE_BUCKET', 'sendly-2702c.firebasestorage.app');
-define('FIREBASE_MESSAGING_SENDER_ID', '302988633506'); // Dapatkan dari Firebase Console
-define('FIREBASE_APP_ID', '1:302988633506:web:13fdf9ef42a17e74b67efb'); // Dapatkan dari Firebase Console
+define('FIREBASE_API_KEY', ''); // Dapatkan dari Firebase Console
+define('FIREBASE_AUTH_DOMAIN', '');
+define('FIREBASE_PROJECT_ID', 's');
+define('FIREBASE_STORAGE_BUCKET', '');
+define('FIREBASE_MESSAGING_SENDER_ID', ''); // Dapatkan dari Firebase Console
+define('FIREBASE_APP_ID', ''); // Dapatkan dari Firebase Console
 
 // Firebase Admin SDK (untuk backend PHP)
 define('FIREBASE_SERVICE_ACCOUNT', __DIR__ . '/firebase-service-account.json');
